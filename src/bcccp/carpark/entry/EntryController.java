@@ -41,8 +41,13 @@ public class EntryController
 
 	@Override
 	public void buttonPushed() {
-		// TODO Auto-generated method stub
-		
+		adhocTicket = this.carpark.issueAdhocTicket();
+		if(null != this.adhocTicket)
+		{
+			this.ui.display("Carpark    : " + adhocTicket.getCarparkId() + " Ticket No  : " + adhocTicket.getTicketNo());
+			this.ui.printTicket(adhocTicket.getCarparkId(), adhocTicket.getTicketNo(), adhocTicket.getEntryDateTime(), adhocTicket.getBarcode());
+		}
+		entryGate.raise();
 	}
 
 
