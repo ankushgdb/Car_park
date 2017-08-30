@@ -6,7 +6,14 @@ import bcccp.carpark.ICarSensorResponder;
 import bcccp.carpark.ICarpark;
 import bcccp.carpark.ICarparkObserver;
 import bcccp.carpark.IGate;
+import bcccp.tickets.adhoc.AdhocTicket;
+import bcccp.tickets.adhoc.AdhocTicketDAO;
+import bcccp.tickets.adhoc.AdhocTicketFactory;
 import bcccp.tickets.adhoc.IAdhocTicket;
+import bcccp.tickets.adhoc.IAdhocTicketDAO;
+import bcccp.tickets.adhoc.IAdhocTicketFactory;
+import bcccp.tickets.season.ISeasonTicket;
+import bcccp.tickets.season.SeasonTicketDAO;
 
 public class EntryController 
 		implements ICarSensorResponder,
@@ -20,21 +27,21 @@ public class EntryController
 	
 	private ICarpark carpark;
 	private IAdhocTicket  adhocTicket = null;
+	private ISeasonTicket seasonTicket = null;
 	private long entryTime;
 	private String seasonTicketId = null;
-	
-	
+	private String EVENT_OUTSIDE_SENSOR = "Entry Outside Sensor";
+	private String EVENT_INSIDE_SENSOR = "Entry Inside Sensor";
 
-	public EntryController(Carpark carpark, IGate entryGate, 
-			ICarSensor os, 
-			ICarSensor is,
-			IEntryUI ui) {
-		//TODO Implement constructor
-		carpark = this.carpark;
-		entryGate = this.entryGate;
-		os = this.outsideSensor;
-		is = this.insideSenSor;
-		ui = this.ui;
+	public EntryController(Carpark _carpark, IGate _entryGate, 
+			ICarSensor _os, 
+			ICarSensor _is,
+			IEntryUI _ui) {
+		this.carpark = _carpark;
+		this.entryGate = _entryGate;
+		this.outsideSensor = _os;
+		this.insideSensor = _is;
+		this.ui = _ui;
 	}
 
 
@@ -50,20 +57,30 @@ public class EntryController
 		entryGate.raise();
 	}
 
-
-
 	@Override
-	public void ticketInserted(String barcode) {
-		// TODO Auto-generated method stub
-		
+	public void ticketInserted(String ticketId) {
+		this.seasonTicket = this.carpark.findTicketById(ticketId);
+		if(null != seasonTicket)
+		{
+			this.carpark.recordSeasonTicketEntry(ticketId);
+			this.seasonTicketId = ticketId;
+			this.ui.display("Carpark    : " + seasonTicket.getCarparkId() + " Ticket No  : " + seasonTicket.getId());
+			entryGate.raise();
+		}
+		else
+		{
+			System.out.println("yahn");
+			this.ui.display("Please enter a valid ticket.");
+		}
 	}
 
 
 
 	@Override
 	public void ticketTaken() {
-		// TODO Auto-generated method stub
-		
+		entryGate.lower();
+		insideSensor.setSensorValue(true);
+		outsideSensor.setSensorValue(false);
 	}
 
 
@@ -78,8 +95,20 @@ public class EntryController
 
 	@Override
 	public void carEventDetected(String detectorId, boolean detected) {
-		// TODO Auto-generated method stub
-		
+		System.out.println("car event for : " + detectorId + " , " + detected);
+		/*
+		if(EVENT_OUTSIDE_SENSOR.equals(detectorId) && detected)
+		{
+			outsideSensor.setSensorValue(true);
+			insideSensor.setSensorValue(false);
+		}
+		if(EVENT_INSIDE_SENSOR.equals(detectorId) && detected)
+		{
+			outsideSensor.setSensorValue(false);
+			insideSensor.setSensorValue(true);
+			entryGate.lower();
+		}
+		*/
 	}
 
 	
