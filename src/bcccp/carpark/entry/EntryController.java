@@ -30,6 +30,11 @@ public class EntryController
 			ICarSensor is,
 			IEntryUI ui) {
 		//TODO Implement constructor
+		this.carpark = carpark;
+		this.entryGate = entryGate;
+		this.outsideSensor = os;
+		this.insideSensor = is;
+		this.ui = ui;
 	}
 
 
@@ -37,6 +42,8 @@ public class EntryController
 	@Override
 	public void buttonPushed() {
 		// TODO Auto-generated method stub
+		ui.display("Press Issue Adhoc Ticket or Enter Season Ticket ID in the Reader");
+		
 		
 	}
 
@@ -46,6 +53,7 @@ public class EntryController
 	public void ticketInserted(String barcode) {
 		// TODO Auto-generated method stub
 		
+		entryGate.raise();
 	}
 
 
