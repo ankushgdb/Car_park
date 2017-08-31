@@ -7,6 +7,8 @@ import bcccp.carpark.ICarSensorResponder;
 import bcccp.carpark.ICarpark;
 import bcccp.carpark.ICarparkObserver;
 import bcccp.carpark.IGate;
+import bcccp.tickets.adhoc.AdhocTicket;
+import bcccp.tickets.adhoc.AdhocTicketDAO;
 
 public class EntryController 
 		implements ICarSensorResponder,
@@ -25,19 +27,6 @@ public class EntryController
 	private String seasonTicketId = null;
 	private String EVENT_OUTSIDE_SENSOR = "Entry Outside Sensor";
 	private String EVENT_INSIDE_SENSOR = "Entry Inside Sensor";
-
-	public EntryController(Carpark _carpark, IGate _entryGate, 
-			ICarSensor _os, 
-			ICarSensor _is,
-			IEntryUI _ui) {
-		this.carpark = _carpark;
-		this.entryGate = _entryGate;
-		this.outsideSensor = _os;
-		this.insideSensor = _is;
-		this.ui = _ui;
-	}
-
-
 
 	@Override
 	public void buttonPushed() {
