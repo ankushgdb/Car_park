@@ -1,19 +1,12 @@
 package bcccp.carpark.entry;
 
 import bcccp.carpark.Carpark;
+
 import bcccp.carpark.ICarSensor;
 import bcccp.carpark.ICarSensorResponder;
 import bcccp.carpark.ICarpark;
 import bcccp.carpark.ICarparkObserver;
 import bcccp.carpark.IGate;
-import bcccp.tickets.adhoc.AdhocTicket;
-import bcccp.tickets.adhoc.AdhocTicketDAO;
-import bcccp.tickets.adhoc.AdhocTicketFactory;
-import bcccp.tickets.adhoc.IAdhocTicket;
-import bcccp.tickets.adhoc.IAdhocTicketDAO;
-import bcccp.tickets.adhoc.IAdhocTicketFactory;
-import bcccp.tickets.season.ISeasonTicket;
-import bcccp.tickets.season.SeasonTicketDAO;
 
 public class EntryController 
 		implements ICarSensorResponder,
