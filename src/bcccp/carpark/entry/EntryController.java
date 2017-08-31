@@ -30,24 +30,19 @@ public class EntryController
 			ICarSensor is,
 			IEntryUI ui) {
 		//TODO Implement constructor
-		carpark = this.carpark;
-		entryGate = this.entryGate;
-		os = this.outsideSensor;
-		is = this.insideSenSor;
-		ui = this.ui;
+		this.carpark = _carpark;
+		this.entryGate = _entryGate;
+		this.outsideSensor = _os;
+		this.insideSensor = _is;
+		this.ui = _ui;
 	}
 
 
 
 	@Override
 	public void buttonPushed() {
-		adhocTicket = this.carpark.issueAdhocTicket();
-		if(null != this.adhocTicket)
-		{
-			this.ui.display("Carpark    : " + adhocTicket.getCarparkId() + " Ticket No  : " + adhocTicket.getTicketNo());
-			this.ui.printTicket(adhocTicket.getCarparkId(), adhocTicket.getTicketNo(), adhocTicket.getEntryDateTime(), adhocTicket.getBarcode());
-		}
-		entryGate.raise();
+		// TODO Auto-generated method stub
+		
 	}
 
 

@@ -34,7 +34,10 @@ public class Carpark implements ICarpark {
 	@Override
 	public void register(ICarparkObserver observer) {
 		// TODO Auto-generated method stub
-		observers.add(observer);
+		if(!observers.contains(observer))
+		{
+			observers.add(observer);
+		}
 	}
 
 
@@ -42,7 +45,10 @@ public class Carpark implements ICarpark {
 	@Override
 	public void deregister(ICarparkObserver observer) {
 		// TODO Auto-generated method stub
-		observers.remove(observer);
+		if(observers.contains(observer))
+		{
+			observers.remove(observer);
+		}
 	}
 
 
