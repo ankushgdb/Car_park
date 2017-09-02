@@ -6,7 +6,7 @@ import bcccp.carpark.ICarSensorResponder;
 import bcccp.carpark.ICarpark;
 import bcccp.carpark.IGate;
 import bcccp.tickets.adhoc.IAdhocTicket;
-import import java.util.*;
+import java.util.*;
 public class ExitController 
 		implements ICarSensorResponder,
 		           IExitController {
