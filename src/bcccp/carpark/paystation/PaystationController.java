@@ -31,6 +31,7 @@ public class PaystationController
 		// TODO Auto-generated method stub
 		/*
 		if the controller state is IDLE 
+		// if
 			request the carpark to return the adhoc ticket identified by the barcode
 			if a ticket is returned and is current and not paid 
 				request the carpark to calculate the charge 
