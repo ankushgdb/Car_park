@@ -6,9 +6,13 @@ import bcccp.tickets.adhoc.IAdhocTicket;
 public class PaystationController 
 		implements IPaystationController {
 	
+	enum State
+    {
+		IDLE, WAITING, REJECTED, PAID
+    }
 	private IPaystationUI ui;	
 	private ICarpark carpark;
-
+	protected State state;
 	private IAdhocTicket  adhocTicket = null;
 	private float charge;
 	
@@ -16,12 +20,13 @@ public class PaystationController
 
 	public PaystationController(ICarpark carpark, IPaystationUI ui) {
 		//TODO Implement constructor
+		try {
 		this.carpark = carpark;
 		this.ui = ui;
-		/*
-		Missed information
-			*/
-		
+		this.state = State.IDLE;
+		}catch(NullPointerException e) {
+			display("Can't be null");
+		}
 	}
 
 
@@ -29,20 +34,17 @@ public class PaystationController
 	@Override
 	public void ticketInserted(String barcode) {
 		// TODO Auto-generated method stub
-		/*
-		if the controller state is IDLE 
-		// if
-			request the carpark to return the adhoc ticket identified by the barcode
-			if a ticket is returned and is current and not paid 
-				request the carpark to calculate the charge 
-				display the charge 
-				transition controller to WAITING state 
-			otherwise
-				make the UI 'beep'
-				transition controller to REJECTED state
-		otherwise
-			make the UI 'beep'
-		*/
+		if(state == State.IDLE) {
+			getAdhocTicket(barcode);
+				if(isPaid() !== true) {
+					calculateAddHocTicketCharge(getEntryDateTime());
+					display(charge);
+					state = State.WAITING;
+				}else {
+					beep();
+					state = State.REJECTED;
+				}
+		}beep();
 	}
 
 
@@ -50,14 +52,15 @@ public class PaystationController
 	@Override
 	public void ticketPaid() {
 		// TODO Auto-generated method stub
-		/*
-		if the controller is in the WAITING state 
-			record the payment time and charge for the adhoc ticket 
-			print payment details on ticket 
-			transition controller to PAID state 
-		otherwise
-			make the UI ‘beep’ 
-		*/
+			
+		if(state == State.WAITING) {
+			calculateAddHocTicketCharge(getEntryDateTime());
+			printTicket(adhocTicket);
+			state = State.PAID;
+		}else {
+			beep();
+		}
+		
 	}
 
 
@@ -65,12 +68,12 @@ public class PaystationController
 	@Override
 	public void ticketTaken() {
 		// TODO Auto-generated method stub
-		/*
-		if the controller is in the WAITING, PAID, or REJECTED states 
-			transition the controller to the IDLE state 
-		otherwise
-			make the UI 'beep'
-		*/
+		
+		if(state == State.WAITING || state == State.PAID || state == State.REJECTED ) {
+			state = State.IDLE;
+		}else {
+			beep();
+		}
 	}
 
 	
