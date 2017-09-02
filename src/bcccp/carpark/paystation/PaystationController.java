@@ -18,6 +18,10 @@ public class PaystationController
 		//TODO Implement constructor
 		this.carpark = carpark;
 		this.ui = ui;
+		/*
+		Missed information
+			*/
+		
 	}
 
 
@@ -52,7 +56,7 @@ public class PaystationController
 			print payment details on ticket 
 			transition controller to PAID state 
 		otherwise
-			make the UI ‘beep’ 
+			make the UI â€˜beepâ€™ 
 		*/
 	}
 
