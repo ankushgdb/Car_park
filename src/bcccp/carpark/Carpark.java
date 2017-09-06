@@ -11,20 +11,20 @@ import bcccp.tickets.season.ISeasonTicketDAO;
 public class Carpark implements ICarpark {
 	
 	private List<ICarparkObserver> observers;
-	private String carparkId;
-	private int capacity;
-	private int nParked;
-	private IAdhocTicketDAO adhocTicketDAO;
-	private ISeasonTicketDAO seasonTicketDAO;
+	private String carparkId_;
+	private int capacity_;
+	private int nParked_;
+	private IAdhocTicketDAO adhocTicketDAO_;
+	private ISeasonTicketDAO seasonTicketDAO_;
 	
 	
 	
-	public Carpark(String carparkId, int capacity, 
-			IAdhocTicketDAO adhocTicketDAO, 
-			ISeasonTicketDAO seasonTicketDAO) {
+	public Carpark(String carparkId, int capacity_, 
+			IAdhocTicketDAO adhocTicketDAO_, 
+			ISeasonTicketDAO seasonTicketDAO_) {
 		//TODO Implement constructor
-		this.carparkId = name;
-		this.capacity = capacity;
+		this.carparkId = this.name;
+		this.capacity = this.capacity;
 		observers = new ArrayList<>();
 		this.adhocTicketDAO = adhocTicketDAO;
 		this.seasonTicketDAO = seasonTicketDAO;
