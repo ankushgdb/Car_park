@@ -6,15 +6,16 @@ import bcccp.tickets.adhoc.IAdhocTicket;
 public class PaystationController 
 		implements IPaystationController {
 	
-	enum State
-    {
-		IDLE, WAITING, REJECTED, PAID
-    }
-	private IPaystationUI ui;	
-	private ICarpark carpark;
-	protected State state;
-	private IAdhocTicket  adhocTicket = null;
-	private float charge;
+private enum STATE { IDLE, WAITING, REJECTED, PAID } 
+	
+	private STATE state_;
+	
+	private IPaystationUI ui_;
+	
+	private ICarpark carpark_;
+
+	private IAdhocTicket  adhocTicket_ = null;
+	private float charge_;
 	
 	
 
