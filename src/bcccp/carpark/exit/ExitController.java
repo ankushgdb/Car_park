@@ -236,7 +236,9 @@ private void setState(STATE newState) {
 	}
 			
 }
-
+private boolean isAdhocTicket(String barcode) {
+	return barcode.substring(0,1).equals("A");
+}
 	@Override
 	public void ticketTaken() {
 		// TODO Auto-generated method stub
