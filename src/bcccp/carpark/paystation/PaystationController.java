@@ -69,18 +69,24 @@ private enum STATE { IDLE, WAITING, REJECTED, PAID }
 
 	@Override
 	public void ticketInserted(String barcode) {
-		// TODO Auto-generated method stub
-		if(state == State.IDLE) {
-			getAdhocTicket(barcode);
-				if(isPaid() !== true) {
-					calculateAddHocTicketCharge(getEntryDateTime());
-					display(charge);
-					state = State.WAITING;
-				}else {
-					beep();
-					state = State.REJECTED;
-				}
-		}beep();
+		if (state_ == STATE.IDLE) {
+			adhocTicket_ = carpark_.getAdhocTicket(barcode);
+			if (adhocTicket_ != null) {
+				charge_ = carpark_.calculateAddHocTicketCharge(adhocTicket_.getEntryDateTime());
+				ui_.display("Pay " + String.format("%.2f", charge_));
+				setState(STATE.WAITING);
+			}
+			else {
+				ui_.beep();
+				ui_.display("Take Rejected Ticket");
+				setState(STATE.REJECTED);
+				log("ticketInserted: ticket is not current");				
+			}
+		}
+		else {
+			ui_.beep();
+			log("ticketInserted: called while in incorrect state");				
+		}
 	}
 
 
