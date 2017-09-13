@@ -57,39 +57,73 @@ public ExitController(Carpark carpark, IGate exitGate,
 
 
 
-	@Override
-	public void ticketInserted(String ticketStr) {
-		// TODO Auto-generated method stub
-		Date date = new Date();
-		if(state == State.WAITING) {
-			if(getBarcode().charAt(0) == 'A') {
-				if(findTicketByBarcode(String barcode) ==! null) {
-					 
-					 exitTime = date.getTime();
-					 display('take processed ticket');
-					 state = State.PROCESSED;
-				}else {
-					('take rejected ticket');
-					state = State.REJECTED;
-				}
-			}else if(getBarcode().charAt(0) == 'S') {
-				if(getId() ==! null) {
-					 UsageRecord.finalise(date);
-					 System.out.println('take processed ticket');
-					 state = State.PROCESSED;
-				}else {
-					System.out.println('take rejected ticket');
-					state = State.REJECTED;
-				}
-			}else {
-				System.out.println('take rejected ticket');
-				state = State.REJECTED
-				beep();
-			}
-		}else {
-			beep();
+@Override
+public void carEventDetected(String detectorId, boolean carDetected) {
+
+	log("carEventDetected: " + detectorId + ", car Detected: " + carDetected );
+	
+	switch (state) {
+	
+	case BLOCKED: 
+		if (detectorId.equals(is.getId()) && !carDetected) {
+			setState(prevState);
 		}
+		break;
+		
+	case IDLE: 
+		log("eventDetected: IDLE");
+		if (detectorId.equals(is.getId()) && carDetected) {
+			log("eventDetected: setting state to WAITING");
+			setState(STATE.WAITING);
+		}
+		else if (detectorId.equals(os.getId()) && carDetected) {
+			setState(STATE.BLOCKED);
+		}
+		break;
+		
+	case WAITING: 
+	case PROCESSED: 
+		if (detectorId.equals(is.getId()) && !carDetected) {
+			setState(STATE.IDLE);
+		}
+		else if (detectorId.equals(os.getId()) && carDetected) {
+			setState(STATE.BLOCKED);
+		}
+		break;
+		
+	case TAKEN: 
+		if (detectorId.equals(is.getId()) && !carDetected) {
+			setState(STATE.IDLE);
+		}
+		else if (detectorId.equals(os.getId()) && carDetected) {
+			setState(STATE.EXITING);
+		}
+		break;
+		
+	case EXITING: 
+		if (detectorId.equals(is.getId()) && !carDetected) {
+			setState(STATE.EXITED);
+		}
+		else if (detectorId.equals(os.getId()) && !carDetected) {
+			setState(STATE.TAKEN);
+		}
+		break;
+		
+	case EXITED: 
+		if (detectorId.equals(is.getId()) && carDetected) {
+			setState(STATE.EXITING);
+		}
+		else if (detectorId.equals(os.getId()) && !carDetected) {
+			setState(STATE.IDLE);
+		}
+		break;
+		
+	default: 
+		break;
+		
 	}
+	
+}
 
 
 
