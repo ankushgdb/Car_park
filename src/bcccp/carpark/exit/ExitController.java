@@ -36,23 +36,24 @@ private String seasonTicketId = null;
 	
 	
 
-	public ExitController(Carpark carpark, IGate exitGate, 
-			ICarSensor is,
-			ICarSensor os, 
-			IExitUI ui) {
-		//TODO Implement constructor
-		this.carpark = carpark;
-		this.exitGate = exitGate;
-		this.insideSensor = is;
-		this.outsideSensor = os;
-		this.ui = ui;
-		this.state = State.IDLE;
-		/*
-		Register the exit controller with both car sensors as a ICarEventResponder 
-		Register the exit controller with the ui as and IExitController 
-		Initialise the exit controller state to IDL
-		*/
-	}
+public ExitController(Carpark carpark, IGate exitGate, 
+		ICarSensor is,
+		ICarSensor os, 
+		IExitUI ui) {
+	
+	this.carpark = carpark;
+	this.exitGate = exitGate;
+	this.is = is;
+	this.os = os;
+	this.ui = ui;
+	
+	os.registerResponder(this);
+	is.registerResponder(this);
+	ui.registerController(this);
+
+	prevState = STATE.IDLE;		
+	setState(STATE.IDLE);		
+}
 
 
 
