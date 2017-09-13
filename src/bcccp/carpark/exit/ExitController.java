@@ -14,22 +14,25 @@ import bcccp.tickets.adhoc.IAdhocTicket;
 import java.util.*;
 
 public class ExitController 
-		implements ICarSensorResponder,
-		           IExitController {
-	enum State
-    {
-		IDLE, WAITING, BLOCKED, PROCESSED, REJECTED, TAKEN, EXITING, EXITED
-    }
-	
-	private IGate exitGate;
-	private ICarSensor insideSensor;
-	private ICarSensor outsideSensor; 
-	private IExitUI ui;
-	private State state;
-	private ICarpark carpark;
-	private IAdhocTicket  adhocTicket = null;
-	private long exitTime;
-	private String seasonTicketId = null;
+implements ICarSensorResponder,
+           IExitController {
+
+private enum STATE { IDLE, WAITING, PROCESSED, REJECTED, TAKEN, EXITING, EXITED, BLOCKED } 
+
+private STATE state;
+private STATE prevState;
+private String message;
+//private String prevMessage;
+
+private IGate exitGate;
+private ICarSensor is;
+private ICarSensor os; 
+private IExitUI ui;
+
+private ICarpark carpark;
+private IAdhocTicket  adhocTicket = null;
+private long exitTime;
+private String seasonTicketId = null;
 	
 	
 
