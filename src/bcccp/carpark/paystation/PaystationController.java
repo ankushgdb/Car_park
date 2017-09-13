@@ -20,14 +20,12 @@ private enum STATE { IDLE, WAITING, REJECTED, PAID }
 	
 
 	public PaystationController(ICarpark carpark, IPaystationUI ui) {
-		//TODO Implement constructor
-		try {
-		this.carpark = carpark;
-		this.ui = ui;
-		this.state = State.IDLE;
-		}catch(NullPointerException e) {
-			display("Can't be null");
-		}
+		
+		this.carpark_ = carpark;
+		this.ui_ = ui;
+		
+		ui.registerController(this);		
+		setState(STATE.IDLE);		
 	}
 
 
