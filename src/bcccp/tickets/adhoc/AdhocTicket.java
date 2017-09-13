@@ -6,18 +6,22 @@
  */
 package bcccp.tickets.adhoc;
 
-// import java.util.Date;
+import bcccp.tickets.adhoc.AdhocTicket.STATE;
+
+import java.util.Date;
 
 public class AdhocTicket implements IAdhocTicket {
 	
 	private String carparkId_;
 	private int ticketNo_;
-	private long entryDateTime_ = 0;
-	private long paidDateTime_ = 0;
-	private long exitDateTime_ = 0;
-	private float charge_ = 0;
-	private String barcode_;
-
+	private long entryDateTime;
+	private long paidDateTime;
+	private long exitDateTime;
+	private float charge;
+	private String barcode;
+	private STATE state_;
+	
+	private enum STATE { ISSUED, CURRENT, PAID, EXITED };
 	
 	
 	public AdhocTicket(String carparkId, int ticketNo, String barcode) {
