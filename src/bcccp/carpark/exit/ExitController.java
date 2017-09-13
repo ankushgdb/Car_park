@@ -239,72 +239,60 @@ private void setState(STATE newState) {
 private boolean isAdhocTicket(String barcode) {
 	return barcode.substring(0,1).equals("A");
 }
-	@Override
-	public void ticketTaken() {
-		// TODO Auto-generated method stub
-		if(state == State.PROCESSED) {
-			raise();
-			state = State.TAKEN;
-		}else if(state == State.REJECTED) {
-			state = State.WAITING;
-		}else {
-			beep();
+@Override
+public void ticketInserted(String ticketStr) {
+	if (state == STATE.WAITING) {
+		if (isAdhocTicket(ticketStr)) {
+			adhocTicket = carpark.getAdhocTicket(ticketStr);
+			exitTime = System.currentTimeMillis();
+			if (adhocTicket != null && adhocTicket.isPaid()) {
+				setState(STATE.PROCESSED);
+			}
+			else {
+				ui.beep();
+				setState(STATE.REJECTED);						
+			}
 		}
-		
-	}
-
-
-
-	@Override
-	public void carEventDetected(String detectorId, boolean detected) {
-		// TODO Auto-generated method stub
-		switch(state) {
-			case IDLE:
-				if(is) {
-					display("Insert Ticket")
-					state = State.WAITING;
-				}
-				if(os) {
-					state = State.BLOCKED;
-				}
-				break;
-			case WAITING:
-				if(!is) {
-					state = State.IDLE;
-				}else if(os) {
-					state = State.BLOCKED;
-				}
-				break;
-			case BLOCKED:
-				if(!is) {
-					state = State.IDLE;
-				}else if(!os) {
-					display("no car detected");
-				}
-				break;
-			case TAKEN:
-				if(!is) {
-					state = State.IDLE;
-				}else if(os) {
-					state = State.EXITING;
-				}
-				break;
-			case EXITING:
-				if(!is) {
-					state = State.EXITED;
-				}else if(!os) {
-					state = State.TAKEN;
-				}
-				break;
-			case EXITED:
-				if(!os) {
-					state = State.IDLE;
-				} else if(is) {
-					state = State.EXITING;
-				}
+		else if (carpark.isSeasonTicketValid(ticketStr) &&
+				 carpark.isSeasonTicketInUse(ticketStr)){					
+			seasonTicketId = ticketStr;
+			setState(STATE.PROCESSED);
+		}
+		else {
+			ui.beep();
+			setState(STATE.REJECTED);						
 		}
 	}
+	else {
+		ui.beep();
+		ui.discardTicket();
+		log("ticketInserted: called while in incorrect state");
+		setState(STATE.REJECTED);						
+	}
+	
+}
 
+
+
+@Override
+public void ticketTaken() {
+	if (state == STATE.PROCESSED)  {
+		exitGate.raise();
+		setState(STATE.TAKEN);
+	}
+	else if (state == STATE.REJECTED) {
+		setState(STATE.WAITING);
+	}
+	else {
+		ui.beep();
+		log("ticketTaken: called while in incorrect state");
+	}
 	
-	
+}
+
+
+
+
+
+
 }
