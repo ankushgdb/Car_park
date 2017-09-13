@@ -28,6 +28,43 @@ private enum STATE { IDLE, WAITING, REJECTED, PAID }
 		setState(STATE.IDLE);		
 	}
 
+	private void log(String message) {
+		System.out.println("EntryController : " + message);
+	}
+
+	
+	
+	private void setState(STATE newState) {
+		switch (newState) {
+		
+		case IDLE: 
+			state_ = STATE.IDLE;
+			ui_.display("Idle");
+			
+			log("setState: IDLE");
+			break;
+			
+		case WAITING: 
+			state_ = STATE.WAITING;
+			log("setState: WAITING");
+			break;
+			
+		case REJECTED: 
+			state_ = STATE.WAITING;
+			log("setState: WAITING");
+			break;
+			
+		case PAID: 
+			state_ = STATE.PAID;
+			ui_.display("Paid");
+			log("setState: PAID");
+			break;			
+			
+		default: 
+			break;
+			
+		}			
+	}
 
 
 	@Override
