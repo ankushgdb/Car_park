@@ -18,7 +18,10 @@ private enum STATE { IDLE, WAITING, REJECTED, PAID }
 	private float charge_;
 	
 	
-
+/*
+ * State is IDLE
+ * checking
+ * */
 	public PaystationController(ICarpark carpark, IPaystationUI ui) {
 		
 		this.carpark_ = carpark;
@@ -33,7 +36,9 @@ private enum STATE { IDLE, WAITING, REJECTED, PAID }
 	}
 
 	
-	
+	/*
+	 * State declared
+	 * */
 	private void setState(STATE newState) {
 		switch (newState) {
 		
@@ -66,7 +71,10 @@ private enum STATE { IDLE, WAITING, REJECTED, PAID }
 		}			
 	}
 
-
+	
+	/*
+	 * Take barcode and check and waiting state
+	 * */
 	@Override
 	public void ticketInserted(String barcode) {
 		if (state_ == STATE.IDLE) {
@@ -90,6 +98,9 @@ private enum STATE { IDLE, WAITING, REJECTED, PAID }
 	}
 
 
+	/*
+	 * Paid
+	 * */
 
 	@Override
 	public void ticketPaid() {
@@ -115,7 +126,9 @@ private enum STATE { IDLE, WAITING, REJECTED, PAID }
 	}
 
 
-
+	/*
+	 * Ticket taken
+	 * */
 
 	@Override
 	public void ticketTaken() {
