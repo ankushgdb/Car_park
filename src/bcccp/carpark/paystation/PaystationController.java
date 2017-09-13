@@ -116,16 +116,19 @@ private enum STATE { IDLE, WAITING, REJECTED, PAID }
 
 
 
+
 	@Override
 	public void ticketTaken() {
-		// TODO Auto-generated method stub
-		
-		if(state == State.WAITING || state == State.PAID || state == State.REJECTED ) {
-			state = State.IDLE;
-		}else {
-			beep();
+		if (state_ == STATE.IDLE) {
+			ui_.beep();
+			log("ticketTaken: called while in incorrect state");				
+		}
+		else {
+			setState(STATE.IDLE);
 		}
 	}
+
+}
 
 	
 	
