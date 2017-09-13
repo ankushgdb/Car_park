@@ -33,7 +33,10 @@ private ICarpark carpark;
 private IAdhocTicket  adhocTicket = null;
 private long exitTime;
 private String seasonTicketId = null;
-	
+
+/*
+ * State is iddle
+ * */
 	
 
 public ExitController(Carpark carpark, IGate exitGate, 
@@ -56,7 +59,11 @@ public ExitController(Carpark carpark, IGate exitGate,
 }
 
 
-
+/*
+ * check car
+ * 
+ * all state checked with switch
+ * */
 @Override
 public void carEventDetected(String detectorId, boolean carDetected) {
 
@@ -125,6 +132,9 @@ public void carEventDetected(String detectorId, boolean carDetected) {
 	
 }
 
+/*
+ * State setting. All state should be stated
+ * */
 
 private void setState(STATE newState) {
 	switch (newState) {
@@ -239,6 +249,17 @@ private void setState(STATE newState) {
 private boolean isAdhocTicket(String barcode) {
 	return barcode.substring(0,1).equals("A");
 }
+
+/*
+ * Waiting ticket
+ * state waiting as well
+ * exiting time saved
+ * 
+ * if it is not valid beep signal and rejected state
+ * 
+ * otherwise beep and discard ticket
+ * */
+
 @Override
 public void ticketInserted(String ticketStr) {
 	if (state == STATE.WAITING) {
@@ -273,7 +294,13 @@ public void ticketInserted(String ticketStr) {
 }
 
 
-
+/*
+ * ticketTacken 
+ * Gate open
+ * set state taken
+ * 
+ * otherwise beep signal
+ */
 @Override
 public void ticketTaken() {
 	if (state == STATE.PROCESSED)  {
