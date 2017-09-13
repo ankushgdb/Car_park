@@ -126,6 +126,116 @@ public void carEventDetected(String detectorId, boolean carDetected) {
 }
 
 
+private void setState(STATE newState) {
+	switch (newState) {
+	
+	case BLOCKED: 
+		log("setState: BLOCKED");
+		prevState = state;
+		//prevMessage = message;
+		state = STATE.BLOCKED;
+		message = "Blocked";
+		ui.display(message);
+		break;
+		
+	case IDLE: 
+		log("setState: IDLE");
+		if (prevState == STATE.EXITED) {
+			if (adhocTicket != null) {
+				adhocTicket.exit(exitTime);
+				carpark.recordAdhocTicketExit();
+				log(adhocTicket.toString() );
+			}
+			else if (seasonTicketId != null) {
+				carpark.recordSeasonTicketExit(seasonTicketId);
+			}
+		}
+		adhocTicket = null;
+		seasonTicketId = null;
+		
+		message = "Idle";
+		state = STATE.IDLE;
+		//prevMessage = message;
+		prevState = state;
+		ui.display(message);
+		if (is.carIsDetected()) {
+			setState(STATE.WAITING);
+		}
+		if (exitGate.isRaised()) {
+			exitGate.lower();
+		}
+		exitTime = 0;
+		break;
+		
+	case WAITING: 
+		log("setState: WAITING");
+		message = "Insert Ticket";
+		state = STATE.WAITING;
+		//prevMessage = message;
+		prevState = state;
+		ui.display(message);
+		if (!is.carIsDetected()) {
+			setState(STATE.IDLE);
+		}
+		break;
+		
+	case PROCESSED: 
+		log("setState: PROCESSED");
+		message = "Take Processed Ticket";
+		state = STATE.PROCESSED;
+		//prevMessage = message;
+		prevState = state;
+		ui.display(message);
+		if (!is.carIsDetected()) {
+			setState(STATE.IDLE);
+		}
+		break;
+		
+	case REJECTED: 
+		log("setState: REJECTED");
+		message = "Take Rejected Ticket";
+		state = STATE.REJECTED;
+		//prevMessage = message;
+		prevState = state;
+		ui.display(message);
+		if (!is.carIsDetected()) {
+			setState(STATE.IDLE);
+		}
+		break;
+		
+	case TAKEN: 
+		log("setState: TAKEN");
+		message = "Ticket Taken";
+		state = STATE.TAKEN;
+		//prevMessage = message;
+		prevState = state;
+		ui.display(message);
+		break;
+		
+	case EXITING: 
+		log("setState: EXITING");
+		message = "Exiting";
+		state = STATE.EXITING;
+		//prevMessage = message;
+		prevState = state;
+		ui.display(message);
+		break;
+		
+	case EXITED: 
+		log("setState: EXITED");
+		message = "Exited";
+		state = STATE.EXITED;
+		//prevMessage = message;
+		prevState = state;
+		ui.display(message);
+		break;
+		
+	default: 
+		break;
+		
+	}
+			
+}
 
 	@Override
 	public void ticketTaken() {
