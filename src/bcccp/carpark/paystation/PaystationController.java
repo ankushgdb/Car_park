@@ -93,16 +93,25 @@ private enum STATE { IDLE, WAITING, REJECTED, PAID }
 
 	@Override
 	public void ticketPaid() {
-		// TODO Auto-generated method stub
+		if (state_ == STATE.WAITING) {
+			long payTime = System.currentTimeMillis();
 			
-		if(state == State.WAITING) {
-			calculateAddHocTicketCharge(getEntryDateTime());
-			printTicket(adhocTicket);
-			state = State.PAID;
-		}else {
-			beep();
+			adhocTicket_.pay(payTime, charge_);
+			
+			String carparkId = adhocTicket_.getCarparkId();
+			int ticketNo = adhocTicket_.getTicketNo();
+			long entryTime = adhocTicket_.getEntryDateTime();
+			long paidTime = adhocTicket_.getPaidDateTime();
+			float charge = adhocTicket_.getCharge();
+			String barcode = adhocTicket_.getBarcode();
+			
+			ui_.printTicket(carparkId, ticketNo, entryTime, paidTime, charge, barcode);
+			setState(STATE.PAID);
 		}
-		
+		else {
+			ui_.beep();
+			log("ticketPaid: called while in incorrect state");				
+		}
 	}
 
 
