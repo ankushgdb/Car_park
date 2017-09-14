@@ -9,7 +9,7 @@ package bcccp.tickets.adhoc;
 import java.util.Date;
 
 public class AdhocTicket implements IAdhocTicket {
-	
+
 	private String carparkId_;
 	private int ticketNo_;
 	private long entryDateTime_;
@@ -18,7 +18,7 @@ public class AdhocTicket implements IAdhocTicket {
 	private float charge_;
 	private String barcode_;
 	private STATE state_;
-	
+
 	/*
 	 * Create the state of ticket:
 	 * ISSUED: the ticket has been issued
@@ -27,10 +27,17 @@ public class AdhocTicket implements IAdhocTicket {
 	 * EXITED: when the car has exited
 	 */
 	private enum STATE { ISSUED, CURRENT, PAID, EXITED };
-	
-	
+
+
 	public AdhocTicket(String carparkId, int ticketNo, String barcode) {
 		//TDO Implement constructor
+		if(carparkId == null || barcode == null) {
+			throw new IllegalArgumentException("Parameters cannot be null");
+		}
+		if (ticketNo <=0) {
+			throw new IllegalArgumentException("Ticket number must be larger than 0");
+		}
+
 		carparkId_ = carparkId;
 		ticketNo_ = ticketNo;
 		barcode_ = barcode;
@@ -62,8 +69,17 @@ public class AdhocTicket implements IAdhocTicket {
 	@Override
 	public void enter(long entryDateTime) {
 		// TODO Auto-generated method stub
-		entryDateTime_ = entryDateTime;
-		state_ = STATE.CURRENT;		
+		if (entryDateTime <=0) {
+			throw new RuntimeException("Date and time can't be negative or 0")
+		}
+		switch (state_) {
+		case ISSUED:
+			entryDateTime_ = entryDateTime;
+			state_ = STATE.CURRENT;	
+			break;
+		default:
+			throw new RuntimeException("Can only enter if the car in ISSUED state");
+		}			
 	}
 
 
@@ -86,9 +102,19 @@ public class AdhocTicket implements IAdhocTicket {
 	@Override
 	public void pay(long paidDateTime, float charge) {
 		// TODO Auto-generated method stub
-		paidDateTime_ = paidDateTime;
-		charge_ = charge;
-		state_ = STATE.PAID;
+		if (paidDateTime <= entryDateTime_) {
+			throw new RuntimeException("Time of payment must be after time of entry");
+		}
+		switch (state_) {
+		case CURRENT:
+			paidDateTime_ = paidDateTime;
+			charge_ = charge;
+			state_ = STATE.PAID;
+			break;
+		default:
+			throw new RuntimeException("Can only pay for current ticket");
+		}
+
 	}
 
 
@@ -116,8 +142,19 @@ public class AdhocTicket implements IAdhocTicket {
 	@Override
 	public void exit(long exitDateTime) {
 		// TODO Auto-generated method stub
-		exitDateTime_ = exitDateTime;
-		state_ = STATE.EXITED;
+		if (exitDateTime <= paidDateTime_) {
+			throw new RuntimeException("Time of exit must be after time of payment");
+		}
+		switch(state_) {
+		case PAID:
+			exitDateTime_ = exitDateTime;
+			state_ = STATE.EXITED;
+			break;
+		default:
+			throw new RuntimeException("Can only exit if current ticket has been paid");
+		}
+
+
 	}
 
 
@@ -134,18 +171,19 @@ public class AdhocTicket implements IAdhocTicket {
 		return state_ == STATE.EXITED;
 	}
 
+	
 	public String toString() {
 		Date entryDateTime = new Date(entryDateTime_);
 		Date paidDateTime = new Date(paidDateTime_);
 		Date exitDateTime = new Date(exitDateTime_);
 
 		return "Carpark    : " + carparkId_ + "\n" +
-		       "Ticket No  : " + ticketNo_ + "\n" +
-		       "Entry Time : " + entryDateTime + "\n" + 
-		       "Paid Time  : " + paidDateTime + "\n" + 
-		       "Exit Time  : " + exitDateTime + "\n" +
-		       "State      : " + state_ + "\n" +
-		       "Barcode    : " + barcode_;		
+		"Ticket No  : " + ticketNo_ + "\n" +
+		"Entry Time : " + entryDateTime + "\n" + 
+		"Paid Time  : " + paidDateTime + "\n" + 
+		"Exit Time  : " + exitDateTime + "\n" +
+		"State      : " + state_ + "\n" +
+		"Barcode    : " + barcode_;		
 	}
-	
+
 }
