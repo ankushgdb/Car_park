@@ -13,6 +13,12 @@ public class AdhocTicketFactory implements IAdhocTicketFactory {
 	@Override
 	public IAdhocTicket make(String carparkId, int ticketNo) {
 		// TODO Auto-generated method stub
+		if (carparkId == null) {
+			throw new IllegalArgumentException("Carpark ID cannot be null");
+		}
+		if (ticketNo <=0) {
+			throw new RuntimeException("Ticket number must be a positive number");
+		}
 		Long entryDateTime = new Date().getTime();
 		String barcode = 'A' + Integer.toHexString(ticketNo) + Long.toHexString(entryDateTime);
 		IAdhocTicket adhocTicket = new AdhocTicket (carparkId, ticketNo, barcode);
