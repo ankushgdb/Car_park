@@ -70,7 +70,7 @@ public class AdhocTicket implements IAdhocTicket {
 	public void enter(long entryDateTime) {
 		// TODO Auto-generated method stub
 		if (entryDateTime <=0) {
-			throw new RuntimeException("Date and time can't be negative or 0")
+			throw new RuntimeException("Date and time can't be negative or 0");
 		}
 		switch (state_) {
 		case ISSUED:
@@ -171,6 +171,9 @@ public class AdhocTicket implements IAdhocTicket {
 		return state_ == STATE.EXITED;
 	}
 
+	public STATE getState() {
+		return state_;
+	}
 	
 	public String toString() {
 		Date entryDateTime = new Date(entryDateTime_);
