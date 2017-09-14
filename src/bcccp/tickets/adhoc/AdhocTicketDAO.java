@@ -24,7 +24,9 @@ public class AdhocTicketDAO  implements IAdhocTicketDAO  {
 		//TODO Implement constructor
 		adhocTicketFactory_ = adhocTicketFactory;
 		currentTickets = new HashMap<String, IAdhocTicket>();
-		// currentTicketNo_ = 0;
+		currentTicketNo_ = 0; 
+		// when a new AdhocTicketDAO object is set up, no ticket is recorded yet 
+		// so currentTicketNo_=0
 	}
 
 
@@ -32,9 +34,12 @@ public class AdhocTicketDAO  implements IAdhocTicketDAO  {
 	@Override
 	public IAdhocTicket createTicket(String carparkId) {
 		// TODO Auto-generated method stub
-		currentTicketNo_++; // when a ticket is issued, ticketNo increments by 1
-		IAdhocTicket adhocTicket = adhocTicketFactory_.make(carparkId, currentTicketNo_); 
+		if (carparkId == null) {
+			throw new IllegalArgumentException("Carpark ID cannot be null");
+		}
+		IAdhocTicket adhocTicket = adhocTicketFactory_.make(carparkId, ++currentTicketNo_); 
 		// make ticket in factory with the new ticketNo
+		// when a ticket is issued, ticketNo increments by 1
 		currentTickets.put(adhocTicket.getBarcode(), adhocTicket);
 		return adhocTicket;
 	}
