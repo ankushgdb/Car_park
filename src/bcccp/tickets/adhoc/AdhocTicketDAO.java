@@ -54,10 +54,7 @@ public class AdhocTicketDAO  implements IAdhocTicketDAO  {
 	}
 
 
-	/* This method iterates every item in adhocTicketList 
-	 * and check whether the ticket is current.
-	 * If the ticket is current, it will be added to currentTickets list
-	 * (non-Javadoc)
+	/* This method generate the total tickets as in currentTickets
 	 * @see bcccp.tickets.adhoc.IAdhocTicketDAO#getCurrentTickets()
 	 */
 	@Override
