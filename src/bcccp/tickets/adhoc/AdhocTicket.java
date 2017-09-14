@@ -6,21 +6,26 @@
  */
 package bcccp.tickets.adhoc;
 
-import bcccp.tickets.adhoc.AdhocTicket.STATE;
-
 import java.util.Date;
 
 public class AdhocTicket implements IAdhocTicket {
 	
 	private String carparkId_;
 	private int ticketNo_;
-	private long entryDateTime;
-	private long paidDateTime;
-	private long exitDateTime;
-	private float charge;
-	private String barcode;
+	private long entryDateTime_;
+	private long paidDateTime_;
+	private long exitDateTime_;
+	private float charge_;
+	private String barcode_;
 	private STATE state_;
 	
+	/*
+	 * Create the state of ticket:
+	 * ISSUED: the ticket has been issued
+	 * CURRENT: when the ticket has been issued and car has entered, not yet paid
+	 * PAID: when the ticket has been paid
+	 * EXITED: when the car has exited
+	 */
 	private enum STATE { ISSUED, CURRENT, PAID, EXITED };
 	
 	
@@ -29,6 +34,7 @@ public class AdhocTicket implements IAdhocTicket {
 		carparkId_ = carparkId;
 		ticketNo_ = ticketNo;
 		barcode_ = barcode;
+		state_ = STATE.ISSUED;
 	}
 
 
@@ -54,9 +60,10 @@ public class AdhocTicket implements IAdhocTicket {
 
 
 	@Override
-	public void enter(long dateTime) {
+	public void enter(long entryDateTime) {
 		// TODO Auto-generated method stub
-		entryDateTime_ = dateTime;
+		entryDateTime_ = entryDateTime;
+		state_ = STATE.CURRENT;		
 	}
 
 
@@ -67,26 +74,21 @@ public class AdhocTicket implements IAdhocTicket {
 	}
 
 
-	/* 	Checks whether the ticket is valid at current time; 
-	 *  ie the entryDateTime has been initiated (entryDateTime_ > 0)
-	 *  and the exitDateTime has not happened (exitDateTime_ = 0)
-	 * @see bcccp.tickets.adhoc.IAdhocTicket#isCurrent()
+	/* 	Checks if the state of the ticket is current
 	 */
 	@Override
 	public boolean isCurrent() {
 		// TODO Auto-generated method stub
-		if ((entryDateTime_ > 0) && (exitDateTime_ <= 0)) { 
-			return true;
-		}
-		else return false;
+		return state_ == STATE.CURRENT;
 	}
 
 
 	@Override
-	public void pay(long dateTime, float charge) {
+	public void pay(long paidDateTime, float charge) {
 		// TODO Auto-generated method stub
-		paidDateTime_ = dateTime;
+		paidDateTime_ = paidDateTime;
 		charge_ = charge;
+		state_ = STATE.PAID;
 	}
 
 
@@ -100,9 +102,7 @@ public class AdhocTicket implements IAdhocTicket {
 	@Override
 	public boolean isPaid() {
 		// TODO Auto-generated method stub
-		if (paidDateTime_ >0 & charge_ > 0) return true;
-			// the ticket is paid if paidDateTime is initiated & charge is activated
-		else return false;
+		return state_ == STATE.PAID;
 	}
 
 
@@ -114,9 +114,10 @@ public class AdhocTicket implements IAdhocTicket {
 
 
 	@Override
-	public void exit(long dateTime) {
+	public void exit(long exitDateTime) {
 		// TODO Auto-generated method stub
-		exitDateTime_ = dateTime;
+		exitDateTime_ = exitDateTime;
+		state_ = STATE.EXITED;
 	}
 
 
@@ -130,10 +131,21 @@ public class AdhocTicket implements IAdhocTicket {
 	@Override
 	public boolean hasExited() {
 		// TODO Auto-generated method stub
-		if (exitDateTime_ > 0) return true;
-		else return false;
+		return state_ == STATE.EXITED;
 	}
 
-	
+	public String toString() {
+		Date entryDateTime = new Date(entryDateTime_);
+		Date paidDateTime = new Date(paidDateTime_);
+		Date exitDateTime = new Date(exitDateTime_);
+
+		return "Carpark    : " + carparkId_ + "\n" +
+		       "Ticket No  : " + ticketNo_ + "\n" +
+		       "Entry Time : " + entryDateTime + "\n" + 
+		       "Paid Time  : " + paidDateTime + "\n" + 
+		       "Exit Time  : " + exitDateTime + "\n" +
+		       "State      : " + state_ + "\n" +
+		       "Barcode    : " + barcode_;		
+	}
 	
 }
