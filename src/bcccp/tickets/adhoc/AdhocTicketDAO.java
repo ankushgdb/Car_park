@@ -11,14 +11,16 @@ import java.util.List;
 
 public class AdhocTicketDAO  implements IAdhocTicketDAO  {
 
-	private IAdhocTicketFactory factory;
-	private int currentTicketNo;
-	private List<IAdhocTicket> adhocTicketList = new ArrayList<IAdhocTicket>();
+	private IAdhocTicketFactory factory_;
+	private int currentTicketNo_; // when car park start, ticketNo = 0, increment by 1 for each ticket
+	List<IAdhocTicket> adhocTicketList = null;
 	
 
 	public AdhocTicketDAO(IAdhocTicketFactory factory) {
 		//TODO Implement constructor
-		this.factory = factory;
+		factory_ = factory;
+		adhocTicketList = new ArrayList<IAdhocTicket>();
+		currentTicketNo_ = 0;
 	}
 
 
@@ -26,22 +28,28 @@ public class AdhocTicketDAO  implements IAdhocTicketDAO  {
 	@Override
 	public IAdhocTicket createTicket(String carparkId) {
 		// TODO Auto-generated method stub
-		currentTicketNo++; // when a ticket is issued, ticketNo increments by 1
-		IAdhocTicket adhocTicket = factory.make(carparkId, currentTicketNo); 
+		currentTicketNo_++; // when a ticket is issued, ticketNo increments by 1
+		IAdhocTicket adhocTicket = factory_.make(carparkId, currentTicketNo_); 
 		// make ticket in factory with the new ticketNo
 		adhocTicketList.add(adhocTicket);
 		return adhocTicket;
 	}
 
 
-
+	/* This method iterates every item in adhocTicketList 
+	 * and check whether the ticket has the same barcode.
+	 * If the ticket is the same, the search will stop and return the ticket 
+	 * (non-Javadoc)
+	 * @see bcccp.tickets.adhoc.IAdhocTicketDAO#getCurrentTickets()
+	 */
+	
 	@Override
 	public IAdhocTicket findTicketByBarcode(String barcode) {
 		// TODO Auto-generated method stub
 		IAdhocTicket ticketFound = null;
-		for (int i = 0; i < adhocTicketList.size(); i++) {
-			if (barcode == adhocTicketList.get(i).getBarcode()) {
-				ticketFound = adhocTicketList.get(i);
+		for (IAdhocTicket ticket: adhocTicketList) {
+			if (barcode == ticket.getBarcode()) {
+				ticketFound = ticket;
 				break;
 			}
 		}
@@ -49,14 +57,19 @@ public class AdhocTicketDAO  implements IAdhocTicketDAO  {
 	}
 
 
-
+	/* This method iterates every item in adhocTicketList 
+	 * and check whether the ticket is current.
+	 * If the ticket is current, it will be added to currentTickets list
+	 * (non-Javadoc)
+	 * @see bcccp.tickets.adhoc.IAdhocTicketDAO#getCurrentTickets()
+	 */
 	@Override
 	public List<IAdhocTicket> getCurrentTickets() {
 		// TODO Auto-generated method stub
 		List<IAdhocTicket> currentTickets = new ArrayList<IAdhocTicket>();
-		for (int i = 0; i < currentTicketNo; i++) {
-			if (currentTickets.get(i).isCurrent() == true) {
-				currentTickets.add(currentTickets.get(i));
+		for (IAdhocTicket ticket: adhocTicketList) { 
+			if (ticket.isCurrent()) { //
+				currentTickets.add(ticket);
 			}
 		}
 		return currentTickets;
@@ -65,3 +78,4 @@ public class AdhocTicketDAO  implements IAdhocTicketDAO  {
 	
 	
 }
+
