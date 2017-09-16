@@ -6,25 +6,42 @@
  */
 package bcccp.tickets.adhoc;
 
-// import java.util.Date;
+import java.util.Date;
 
 public class AdhocTicket implements IAdhocTicket {
-	
+
 	private String carparkId_;
 	private int ticketNo_;
-	private long entryDateTime_ = 0;
-	private long paidDateTime_ = 0;
-	private long exitDateTime_ = 0;
-	private float charge_ = 0;
+	private long entryDateTime_;
+	private long paidDateTime_;
+	private long exitDateTime_;
+	private float charge_;
 	private String barcode_;
+	private STATE state_;
 
-	
-	
+	/*
+	 * Create the state of ticket:
+	 * ISSUED: the ticket has been issued
+	 * CURRENT: when the ticket has been issued and car has entered, not yet paid
+	 * PAID: when the ticket has been paid
+	 * EXITED: when the car has exited
+	 */
+	private enum STATE { ISSUED, CURRENT, PAID, EXITED };
+
+
 	public AdhocTicket(String carparkId, int ticketNo, String barcode) {
 		//TDO Implement constructor
+		if(carparkId == null || barcode == null) {
+			throw new IllegalArgumentException("Parameters cannot be null");
+		}
+		if (ticketNo <=0) {
+			throw new IllegalArgumentException("Ticket number must be larger than 0");
+		}
+
 		carparkId_ = carparkId;
 		ticketNo_ = ticketNo;
 		barcode_ = barcode;
+		state_ = STATE.ISSUED;
 	}
 
 
@@ -50,9 +67,19 @@ public class AdhocTicket implements IAdhocTicket {
 
 
 	@Override
-	public void enter(long dateTime) {
+	public void enter(long entryDateTime) {
 		// TODO Auto-generated method stub
-		entryDateTime_ = dateTime;
+		if (entryDateTime <=0) {
+			throw new RuntimeException("Date and time can't be negative or 0");
+		}
+		switch (state_) {
+		case ISSUED:
+			entryDateTime_ = entryDateTime;
+			state_ = STATE.CURRENT;	
+			break;
+		default:
+			throw new RuntimeException("Can only enter if the car in ISSUED state");
+		}			
 	}
 
 
@@ -63,26 +90,31 @@ public class AdhocTicket implements IAdhocTicket {
 	}
 
 
-	/* 	Checks whether the ticket is valid at current time; 
-	 *  ie the entryDateTime has been initiated (entryDateTime_ > 0)
-	 *  and the exitDateTime has not happened (exitDateTime_ = 0)
-	 * @see bcccp.tickets.adhoc.IAdhocTicket#isCurrent()
+	/* 	Checks if the state of the ticket is current
 	 */
 	@Override
 	public boolean isCurrent() {
 		// TODO Auto-generated method stub
-		if ((entryDateTime_ > 0) && (exitDateTime_ <= 0)) { 
-			return true;
-		}
-		else return false;
+		return state_ == STATE.CURRENT;
 	}
 
 
 	@Override
-	public void pay(long dateTime, float charge) {
+	public void pay(long paidDateTime, float charge) {
 		// TODO Auto-generated method stub
-		paidDateTime_ = dateTime;
-		charge_ = charge;
+		if (paidDateTime <= entryDateTime_) {
+			throw new RuntimeException("Time of payment must be after time of entry");
+		}
+		switch (state_) {
+		case CURRENT:
+			paidDateTime_ = paidDateTime;
+			charge_ = charge;
+			state_ = STATE.PAID;
+			break;
+		default:
+			throw new RuntimeException("Can only pay for current ticket");
+		}
+
 	}
 
 
@@ -96,9 +128,7 @@ public class AdhocTicket implements IAdhocTicket {
 	@Override
 	public boolean isPaid() {
 		// TODO Auto-generated method stub
-		if (paidDateTime_ >0 & charge_ > 0) return true;
-			// the ticket is paid if paidDateTime is initiated & charge is activated
-		else return false;
+		return state_ == STATE.PAID;
 	}
 
 
@@ -110,9 +140,21 @@ public class AdhocTicket implements IAdhocTicket {
 
 
 	@Override
-	public void exit(long dateTime) {
+	public void exit(long exitDateTime) {
 		// TODO Auto-generated method stub
-		exitDateTime_ = dateTime;
+		if (exitDateTime <= paidDateTime_) {
+			throw new RuntimeException("Time of exit must be after time of payment");
+		}
+		switch(state_) {
+		case PAID:
+			exitDateTime_ = exitDateTime;
+			state_ = STATE.EXITED;
+			break;
+		default:
+			throw new RuntimeException("Can only exit if current ticket has been paid");
+		}
+
+
 	}
 
 
@@ -126,10 +168,25 @@ public class AdhocTicket implements IAdhocTicket {
 	@Override
 	public boolean hasExited() {
 		// TODO Auto-generated method stub
-		if (exitDateTime_ > 0) return true;
-		else return false;
+		return state_ == STATE.EXITED;
 	}
 
+	public STATE getState() {
+		return state_;
+	}
 	
-	
+	public String toString() {
+		Date entryDateTime = new Date(entryDateTime_);
+		Date paidDateTime = new Date(paidDateTime_);
+		Date exitDateTime = new Date(exitDateTime_);
+
+		return "Carpark    : " + carparkId_ + "\n" +
+		"Ticket No  : " + ticketNo_ + "\n" +
+		"Entry Time : " + entryDateTime + "\n" + 
+		"Paid Time  : " + paidDateTime + "\n" + 
+		"Exit Time  : " + exitDateTime + "\n" +
+		"State      : " + state_ + "\n" +
+		"Barcode    : " + barcode_;		
+	}
+
 }

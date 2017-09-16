@@ -5,8 +5,8 @@
 
 package bcccp.tickets.season;
 
-// import java.util.ArrayList;
-// import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 // import bcccp.tickets.adhoc.IAdhocTicket; 
@@ -16,44 +16,46 @@ public class SeasonTicket implements ISeasonTicket {
 	private List<IUsageRecord> usages;
 	private IUsageRecord currentUsage = null;
 	
-	private String ticketId;
-	private String carparkId;
-	private long startValidPeriod;
-	private long endValidPeriod;
+	private String ticketId_;
+	private String carparkId_;
+	private long startValidPeriod_;
+	private long endValidPeriod_;
 	
 	public SeasonTicket (String ticketId, 
 			             String carparkId, 
 			             long startValidPeriod,
 			             long endValidPeriod) {
 		//TDO Implement constructor
-		ticketId = this.ticketId;
-		carparkId = this.carparkId;
-		startValidPeriod = this.startValidPeriod;
-		endValidPeriod = this.endValidPeriod;
+		ticketId_ = ticketId;
+		carparkId_ = carparkId;
+		startValidPeriod_ = startValidPeriod;
+		endValidPeriod_ = endValidPeriod;
+		
+		usages = new ArrayList<IUsageRecord>();
 	}
 
 	@Override
 	public String getId() {
 		// TODO Auto-generated method stub
-		return ticketId;
+		return ticketId_;
 	}
 
 	@Override
 	public String getCarparkId() {
 		// TODO Auto-generated method stub
-		return carparkId;
+		return carparkId_;
 	}
 
 	@Override
 	public long getStartValidPeriod() {
 		// TODO Auto-generated method stub
-		return startValidPeriod;
+		return startValidPeriod_;
 	}
 
 	@Override
 	public long getEndValidPeriod() {
 		// TODO Auto-generated method stub
-		return endValidPeriod;
+		return endValidPeriod_;
 	}
 
 	/* This method checks whether the ticket is used at the moment, i.e. currentUsage is null or not
@@ -70,9 +72,12 @@ public class SeasonTicket implements ISeasonTicket {
 	}
 
 	@Override
-	public void recordUsage(IUsageRecord record) {
+	public void recordUsage(IUsageRecord usageRecord) {
 		// TODO Auto-generated method stub
-		usages.add(record);
+		currentUsage = usageRecord;
+		if (!usages.contains(usageRecord)) {
+			usages.add(usageRecord);
+		}
 	}
 
 	@Override
@@ -87,15 +92,27 @@ public class SeasonTicket implements ISeasonTicket {
 	@Override
 	public void endUsage(long dateTime) {
 		// TODO Auto-generated method stub
+		if (currentUsage == null) {
+			throw new RuntimeException("SeasonTicket.endUsage : ticket is not in use");
+		}	
 		currentUsage.finalise(dateTime); // finalise usage
-		recordUsage(currentUsage); // add usage to usage list
 		currentUsage = null; // return usage as null for next time usage
 	}
 
 	@Override
 	public List<IUsageRecord> getUsageRecords() {
 		// TODO Auto-generated method stub
-		return usages;
+		return Collections.unmodifiableList(usages);
+	}
+	
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Carpark    : " + carparkId_ + "\n" +
+		       "Ticket No  : " + ticketId_ + "\n" );
+		for (IUsageRecord usage : usages) {
+			builder.append(usage.toString() + "\n");
+		}
+		return builder.toString();
 	}
 
 
