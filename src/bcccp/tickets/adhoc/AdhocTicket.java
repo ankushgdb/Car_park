@@ -102,17 +102,9 @@ public class AdhocTicket implements IAdhocTicket {
 	@Override
 	public void pay(long paidDateTime, float charge) {
 		// TODO Auto-generated method stub
-		if (paidDateTime <= entryDateTime_) {
-			throw new RuntimeException("Time of payment must be after time of entry");
-		}
-		switch (state_) {
-		case CURRENT:
-			paidDateTime_ = paidDateTime;
-			charge_ = charge;
-			state_ = STATE.PAID;
-			break;
-		default:
-			throw new RuntimeException("Can only pay for current ticket");
+		paidDateTime_ = paidDateTime;
+		charge_ = charge;
+		state_ = STATE.PAID;
 		}
 
 	}
