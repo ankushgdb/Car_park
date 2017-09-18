@@ -6,7 +6,7 @@ import bcccp.carpark.ICarSensorResponder;
 import bcccp.carpark.ICarpark;
 import bcccp.carpark.ICarparkObserver;
 import bcccp.carpark.IGate;
-import bcccp.tickets.adhoc.AdhocTicket;
+import bcccp.tickets.adhoc.IAdhocTicket;
 
 public class EntryController 
 		implements ICarSensorResponder,
@@ -19,9 +19,9 @@ public class EntryController
 	private String message;
 	
 	private IGate entryGate_;
-	private ICarSensor outsideSensor_; 
-	private ICarSensor insideSensor_;
-	private IEntryUI ui_;
+	private ICarSensor outsideEntrySensor_; 
+	private ICarSensor insideEntrySensor_;
+	private IEntryUI ui;
 	
 	private ICarpark carpark;
 	private IAdhocTicket  adhocTicket = null;
@@ -37,9 +37,9 @@ public class EntryController
 		//TODO Implement constructor
 		this.carpark = carpark;
 		this.entryGate_ = entryGate;
-		this.outsideSensor_ = os;
-		this.insideSensor_ = is;
-		this.ui_ = ui;
+		this.outsideEntrySensor_ = os;
+		this.insideEntrySensor_ = is;
+		this.ui = ui;
 		
 		outsideEntrySensor_.registerResponder(this);
 		insideEntrySensor_.registerResponder(this);
