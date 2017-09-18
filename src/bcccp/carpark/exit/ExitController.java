@@ -58,6 +58,12 @@ public ExitController(Carpark carpark, IGate exitGate,
 	setState(STATE.IDLE);		
 }
 
+/*
+ * Add log method
+ */
+private void log(String message) {
+	System.out.println("ExitController : " + message);
+}
 
 /*
  * check car
