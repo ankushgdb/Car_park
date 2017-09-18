@@ -107,7 +107,6 @@ public class AdhocTicket implements IAdhocTicket {
 		state_ = STATE.PAID;
 		}
 
-	}
 
 
 	@Override
