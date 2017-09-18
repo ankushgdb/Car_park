@@ -60,7 +60,7 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 		// TODO Auto-generated method stub
 		ISeasonTicket ticketFound = null;
 		if (currentTickets.containsKey(ticketId)) {
-			return ticketFound = currentTickets.get(barcode);
+			return ticketFound = currentTickets.get(ticketId);
 		}
 		return ticketFound;
 	}
