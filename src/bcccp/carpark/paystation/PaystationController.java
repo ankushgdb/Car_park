@@ -2,6 +2,7 @@ package bcccp.carpark.paystation;
 
 import bcccp.carpark.ICarpark;
 import bcccp.tickets.adhoc.IAdhocTicket;
+import bcccp.carpark.CalcAdhocTicketCharge;
 
 public class PaystationController 
 		implements IPaystationController {
