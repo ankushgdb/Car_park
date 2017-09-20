@@ -6,34 +6,34 @@ import bcccp.carpark.ICarSensorResponder;
 import bcccp.carpark.ICarpark;
 import bcccp.carpark.IGate;
 import bcccp.tickets.adhoc.IAdhocTicket;
-import bcccp.carpark.ICarSensor;
-import bcccp.carpark.ICarSensorResponder;
-import bcccp.carpark.ICarpark;
-import bcccp.carpark.IGate;
-import bcccp.tickets.adhoc.IAdhocTicket;
-import java.util.*;
+import java.util.Date;
 
-public class ExitController 
-implements ICarSensorResponder,
-           IExitController {
+public class ExitController implements ICarSensorResponder, IExitController {
 
-private enum STATE { IDLE, WAITING, PROCESSED, REJECTED, TAKEN, EXITING, EXITED, BLOCKED } 
+  static final long FIFTEEN_MINUTES = 900000; //fifteen minutes = 900000 milliseconds
+  private IGate exitGate;
+  private ICarSensor insideSensor;
+  private ICarSensor outsideSensor;
+  private IExitUI ui;
+  private ICarpark carpark;
+  private IAdhocTicket adhocTicket = null;
+  private long exitTime;
+  private String seasonTicketId = null;
 
-private STATE state;
-private STATE prevState;
-private String message;
-//private String prevMessage;
+    private enum STATE {
+        IDLE,
+        WAITING,
+        PROCESSED,
+        REJECTED,
+        TAKEN,
+        EXITING,
+        EXITED,
+        BLOCKED
+    }
 
-private IGate exitGate;
-private ICarSensor is;
-private ICarSensor os; 
-private IExitUI ui;
-
-private ICarpark carpark;
-private IAdhocTicket  adhocTicket = null;
-private long exitTime;
-private String seasonTicketId = null;
-
+    private STATE state;
+    private STATE prevState;
+    private String message;
 /*
  * State is iddle
  * */
