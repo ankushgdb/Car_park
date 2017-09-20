@@ -5,6 +5,7 @@ import bcccp.carpark.ICarSensor;
 import bcccp.carpark.ICarSensorResponder;
 import bcccp.carpark.ICarpark;
 import bcccp.carpark.IGate;
+import bcccp.carpark.exit.ExitController.STATE;
 import bcccp.tickets.adhoc.IAdhocTicket;
 import java.util.Date;
 
@@ -39,24 +40,35 @@ public class ExitController implements ICarSensorResponder, IExitController {
  * */
 	
 
-public ExitController(Carpark carpark, IGate exitGate, 
-		ICarSensor is,
-		ICarSensor os, 
-		IExitUI ui) {
-	
-	this.carpark = carpark;
-	this.exitGate = exitGate;
-	this.is = is;
-	this.os = os;
-	this.ui = ui;
-	
-	os.registerResponder(this);
-	is.registerResponder(this);
-	ui.registerController(this);
+    public ExitController(Carpark carpark, IGate exitGate, ICarSensor is, ICarSensor os, IExitUI ui) {
 
-	prevState = STATE.IDLE;		
-	setState(STATE.IDLE);		
-}
+        if (carpark != null && exitGate != null && os != null && is != null && ui != null) {
+
+            this.carpark = carpark;
+
+            this.exitGate = exitGate;
+
+            insideSensor = is;
+
+            outsideSensor = os;
+
+            this.ui = ui;
+
+            os.registerResponder(this);
+
+            is.registerResponder(this);
+
+            ui.registerController(this);
+
+            prevState = STATE.IDLE;
+
+            setState(STATE.IDLE);
+
+        } else {
+
+            throw new RuntimeException("Arguments cannot be null.");
+        }
+    }
 
 /*
  * Add log method
