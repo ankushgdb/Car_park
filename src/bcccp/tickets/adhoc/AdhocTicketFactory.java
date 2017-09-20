@@ -6,7 +6,6 @@
 
 package bcccp.tickets.adhoc;
 
-import java.util.Date;
 
 public class AdhocTicketFactory implements IAdhocTicketFactory {
 

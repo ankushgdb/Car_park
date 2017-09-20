@@ -23,7 +23,7 @@ public class AdhocTicketDAO  implements IAdhocTicketDAO  {
 	public AdhocTicketDAO(IAdhocTicketFactory adhocTicketFactory) {
 		//TODO Implement constructor
 		adhocTicketFactory_ = adhocTicketFactory;
-		currentTickets = new HashMap<String, IAdhocTicket>();
+		currentTickets = new HashMap<>();
 		// currentTicketNo_ = 0; 
 		// when a new AdhocTicketDAO object is set up, no ticket is recorded yet 
 		// so currentTicketNo_=0
