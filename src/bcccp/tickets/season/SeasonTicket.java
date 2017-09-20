@@ -1,118 +1,134 @@
-/*
- * This class creates a season ticket 
- * and record each usage in an array list for each ticket holder
- */
-
 package bcccp.tickets.season;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-// import bcccp.tickets.adhoc.IAdhocTicket; 
+import java.util.Iterator;
 
 public class SeasonTicket implements ISeasonTicket {
-	
+
 	private List<IUsageRecord> usages;
 	private IUsageRecord currentUsage = null;
-	
-	private String ticketId_;
-	private String carparkId_;
-	private long startValidPeriod_;
-	private long endValidPeriod_;
-	
-	public SeasonTicket (String ticketId, 
-			             String carparkId, 
-			             long startValidPeriod,
+
+	private String ticketId;
+	private String carparkId;
+	private long startValidPeriod;
+	private long endValidPeriod;
+
+
+  /** This class represents each Season Ticket object, which is instantiated in Main method
+   *
+   * @param ticketId unique identifier for each Season Ticket
+   * @param carparkId short or long term carpark
+   * @param startValidPeriod start date of the season ticket's valid period
+   * @param endValidPeriod end date of the season ticket's valid period
+   *
+   * */
+
+  public SeasonTicket(String ticketId,
+					  String carparkId,
+					  long startValidPeriod,
 			             long endValidPeriod) {
-		//TDO Implement constructor
-		ticketId_ = ticketId;
-		carparkId_ = carparkId;
-		startValidPeriod_ = startValidPeriod;
-		endValidPeriod_ = endValidPeriod;
-		
-		usages = new ArrayList<IUsageRecord>();
+
+		this.ticketId = ticketId;
+		this.carparkId = carparkId;
+		this.startValidPeriod = startValidPeriod;
+		this.endValidPeriod = endValidPeriod;
+
+		usages = new ArrayList<>();
 	}
 
 	@Override
 	public String getId() {
-		// TODO Auto-generated method stub
-		return ticketId_;
+		return ticketId;
 	}
 
 	@Override
 	public String getCarparkId() {
-		// TODO Auto-generated method stub
-		return carparkId_;
+		return carparkId;
 	}
 
 	@Override
 	public long getStartValidPeriod() {
-		// TODO Auto-generated method stub
-		return startValidPeriod_;
+		return startValidPeriod;
 	}
 
 	@Override
 	public long getEndValidPeriod() {
-		// TODO Auto-generated method stub
-		return endValidPeriod_;
+		return endValidPeriod;
 	}
 
-	/* This method checks whether the ticket is used at the moment, i.e. currentUsage is null or not
-	 * (non-Javadoc)
-	 * @see bcccp.tickets.season.ISeasonTicket#inUse()
-	 */
 	@Override
 	public boolean inUse() {
-		// TODO Auto-generated method stub
-		if (currentUsage != null) {
-			return true;
-		}
-		else return false;
+
+		Iterator<IUsageRecord> usageRec = usages.iterator();
+
+		boolean foundUsageRecord = false;
+
+		while (usageRec.hasNext()) {
+
+
+      if (usageRec.next().getSeasonTicketId().equals(getId())) {
+
+        foundUsageRecord = true;
+        break;
+      }
+
+      else foundUsageRecord = false;
+    }
+
+    return foundUsageRecord;
+
 	}
 
 	@Override
-	public void recordUsage(IUsageRecord usageRecord) {
-		// TODO Auto-generated method stub
-		currentUsage = usageRecord;
-		if (!usages.contains(usageRecord)) {
-			usages.add(usageRecord);
-		}
+	public void recordUsage(IUsageRecord record) {
+
+		usages.add(record);
 	}
 
 	@Override
 	public IUsageRecord getCurrentUsageRecord() {
-		// TODO Auto-generated method stub
-		return currentUsage;
+
+
+    Iterator<IUsageRecord> usageRecs = usages.iterator();
+
+    while (usageRecs.hasNext()) {
+
+      if (usageRecs.next().getSeasonTicketId().equals(getId())) {
+
+        currentUsage = usageRecs.next();
+        break;
+      }
+    }
+
+    return currentUsage;
+
 	}
-/* This will finalise the ticket and add usage to the usage list
- * (non-Javadoc)
- * @see bcccp.tickets.season.ISeasonTicket#endUsage(long)
- */
+
 	@Override
 	public void endUsage(long dateTime) {
-		// TODO Auto-generated method stub
-		if (currentUsage == null) {
-			throw new RuntimeException("SeasonTicket.endUsage : ticket is not in use");
-		}	
-		currentUsage.finalise(dateTime); // finalise usage
-		currentUsage = null; // return usage as null for next time usage
+
+    // Records the date and time of the end of this usage of the Season ticket.
+
+		// Will need to get the current usage record and write the dateTime to the usage record
+
+		Iterator<IUsageRecord> usageRecs = usages.iterator();
+
+		while (usageRecs.hasNext()) {
+
+			if (usageRecs.next().getSeasonTicketId().equals(getId())) {
+
+				usageRecs.next().finalise(dateTime);
+				break;
+			}
+		}
 	}
 
 	@Override
 	public List<IUsageRecord> getUsageRecords() {
-		// TODO Auto-generated method stub
-		return Collections.unmodifiableList(usages);
-	}
-	
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Carpark    : " + carparkId_ + "\n" +
-		       "Ticket No  : " + ticketId_ + "\n" );
-		for (IUsageRecord usage : usages) {
-			builder.append(usage.toString() + "\n");
-		}
-		return builder.toString();
+
+    return usages;
 	}
 
 
