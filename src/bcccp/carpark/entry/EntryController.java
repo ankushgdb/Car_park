@@ -18,6 +18,7 @@ public class EntryController
 	private STATE prevState_;
 	private String message;
 	
+	
 	private IGate entryGate_;
 	private ICarSensor outsideEntrySensor_; 
 	private ICarSensor insideEntrySensor_;
