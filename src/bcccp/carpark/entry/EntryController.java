@@ -6,32 +6,37 @@ import bcccp.carpark.ICarSensorResponder;
 import bcccp.carpark.ICarpark;
 import bcccp.carpark.ICarparkObserver;
 import bcccp.carpark.IGate;
+import bcccp.carpark.exit.ExitController;
 import bcccp.tickets.adhoc.IAdhocTicket;
 
-public class EntryController 
-		implements ICarSensorResponder,
-				   ICarparkObserver,
-		           IEntryController {
-	private enum STATE { IDLE, WAITING, FULL, VALIDATED, ISSUED, TAKEN, ENTERING, ENTERED, BLOCKED } 
-	
-	private STATE state_;
-	private STATE prevState_;
-	private String message;
-	
-	
-	private IGate entryGate_;
-	private ICarSensor outsideEntrySensor_; 
-	private ICarSensor insideEntrySensor_;
-	private IEntryUI ui;
-	
-	private ICarpark carpark;
-	private IAdhocTicket  adhocTicket = null;
-	private long entryTime;
-	private String seasonTicketId = null;
-	
-	
+public class EntryController implements ICarSensorResponder, ICarparkObserver, IEntryController {
 
-	public EntryController(Carpark carpark, IGate entryGate, 
+  private IAdhocTicket adhocTicket;
+  private IGate entryGate;
+  private ICarSensor outsideSensor;
+  private ICarSensor insideSensor;
+  private IEntryUI ui;
+  private ICarpark carpark;
+  private long entryTime;
+
+  private enum STATE {
+    IDLE,
+    WAITING,
+    FULL,
+    VALIDATED,
+    ISSUED,
+    TAKEN,
+    ENTERING,
+    ENTERED,
+    BLOCKED
+  }
+
+  private String seasonTicketId;
+  private STATE state;
+  private STATE prevState;
+  private String message;
+
+  public EntryController(Carpark carpark, IGate entryGate, 
 			ICarSensor os, 
 			ICarSensor is,
 			IEntryUI ui) {
