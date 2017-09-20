@@ -1,6 +1,7 @@
 package bcccp.carpark;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import bcccp.tickets.adhoc.IAdhocTicket;
@@ -9,180 +10,152 @@ import bcccp.tickets.season.ISeasonTicket;
 import bcccp.tickets.season.ISeasonTicketDAO;
 
 public class Carpark implements ICarpark {
-	
-	private List<ICarparkObserver> observers;
-	private String carparkId;
-	private int capacity;
-	private int nParked;
-	private IAdhocTicketDAO adhocTicketDAO;
-	private ISeasonTicketDAO seasonTicketDAO;
-	
-	
-	
-	public Carpark(String name, int capacity, 
-			IAdhocTicketDAO adhocTicketDAO, 
-			ISeasonTicketDAO seasonTicketDAO) {
-		this.carparkId = name;
-		this.capacity = capacity;
-		observers = new ArrayList<>();
-		this.adhocTicketDAO = adhocTicketDAO;
-		this.seasonTicketDAO = seasonTicketDAO;
-	}
 
-	
-	
-	@Override
-	public void register(ICarparkObserver observer) {
-		if (!observers.contains(observer)) {
-			observers.add(observer);
-		}
-	}
+  private List<ICarparkObserver> observers;
+  private String carparkId;
+  private int capacity;
+  private int numberOfCarsParked;
+  private IAdhocTicketDAO adhocTicketDAO;
+  private ISeasonTicketDAO seasonTicketDAO;
 
-	
-	
-	@Override
-	public void deregister(ICarparkObserver observer) {
-		if (observers.contains(observer)) {
-			observers.remove(observer);
-		}
-	}
-	
-	
-	
-	private void notifyObservers() {
-		for (ICarparkObserver observer : observers) {
-			observer.notifyCarparkEvent();
-		}
-	}
+  /**
+   * This class represents the car park, registers entry and exit of cars and registers tickets,
+   * both ad hoc and season
+   *
+   * @param name            short or long term car park
+   * @param capacity        total number of cars that can park in it
+   * @param adhocTicketDAO  record of ad hoc ticket
+   * @param seasonTicketDAO record of season ticket
+   */
+  public Carpark(
+          String name, int capacity, IAdhocTicketDAO adhocTicketDAO, ISeasonTicketDAO seasonTicketDAO) {
 
-	
-	
-	@Override
-	public String getName() {
-		return carparkId;
-	}
-	
-	
-	
-	@Override
-	public boolean isFull() {
-		return nParked + seasonTicketDAO.getNumberOfTickets() == capacity;
-	}
-	
-	
-	
-	@Override
-	public IAdhocTicket issueAdhocTicket() {
-		return adhocTicketDAO.createTicket(carparkId);
-	}
-	
-	
-	
-	@Override
-	public IAdhocTicket getAdhocTicket(String barcode) {
-		return adhocTicketDAO.findTicketByBarcode(barcode);
-	}
-	
-	
-		
-	@Override
-	public float calculateAddHocTicketCharge(long entryDateTime) {
-		//TODO Implement charge logic
-		return 3.0f;
-	}
+    this.carparkId = name;
+    this.capacity = capacity;
+    this.adhocTicketDAO = adhocTicketDAO;
+    this.seasonTicketDAO = seasonTicketDAO;
 
-	
-	
-	@Override
-	public boolean isSeasonTicketValid(String barcode) {		
-		ISeasonTicket ticket = seasonTicketDAO.findTicketById(barcode);
-		
-		// TODO implement full validation logic
-		return ticket != null;
-	}
+    if (this.carparkId == null) {
+      throw new IllegalArgumentException(
+          "Invalid argument passed to Carpark constructor: carparkId is null");
+    }
 
-	
-	
-	@Override
-	public void registerSeasonTicket(ISeasonTicket seasonTicket) {
-		seasonTicketDAO.registerTicket(seasonTicket);		
-	}
+    if (this.carparkId == "") {
+      throw new IllegalArgumentException(
+          "Invalid argument passed to Carpark constructor: carparkId is empty");
+    }
+
+    if (this.capacity <= 0) {
+      throw new IllegalArgumentException(
+          "Invalid argument passed to Carpark constructor: capacity is zero or negative");
+    }
+
+    observers = new ArrayList<>();
+  }
+
+  @Override
+  public void register(ICarparkObserver observer) {
+
+    observers.add(observer);
+  }
+
+  @Override
+  public void deregister(ICarparkObserver observer) {
+
+    observers.remove(observer);
+  }
+
+  @Override
+  public String getName() {
+
+    return carparkId;
+  }
+
+  @Override
+  public boolean isFull() {
+
+    return numberOfCarsParked >= capacity;
+  }
+
+  @Override
+  public IAdhocTicket issueAdhocTicket() {
+
+    return adhocTicketDAO.createTicket(carparkId);
+  }
+
+  @Override
+  public void recordAdhocTicketEntry() {
+
+    numberOfCarsParked++;
+  }
+
+  @Override
+  public IAdhocTicket getAdhocTicket(String barcode) {
+
+    return adhocTicketDAO.findTicketByBarcode(barcode);
+  }
 
 
+  @Override
+  public void recordAdhocTicketExit() {
 
-	@Override
-	public void deregisterSeasonTicket(ISeasonTicket seasonTicket) {
-		seasonTicketDAO.deregisterTicket(seasonTicket);		
-	}
+    numberOfCarsParked--;
+  }
 
-	
-	
-	@Override
-	public void recordSeasonTicketEntry(String ticketId) {
-		ISeasonTicket ticket = seasonTicketDAO.findTicketById(ticketId);
-		if (ticket == null) throw new RuntimeException("recordSeasonTicketEntry: invalid ticketId - " + ticketId);
-		
-		seasonTicketDAO.recordTicketEntry(ticketId);
-		log(ticket.toString());
-	}
+  @Override
+  public void registerSeasonTicket(ISeasonTicket seasonTicket) {
 
-	
-	
-	private void log(String message) {
-		System.out.println("Carpark : " + message);
-	}
+    seasonTicketDAO.registerTicket(seasonTicket);
 
+    if (seasonTicket.getCarparkId() != this.carparkId) {
 
+      throw new RuntimeException("SeasonTicket in registerSeasonTicket has invalid CarparkId: " +
+              seasonTicket.getCarparkId() + ", should be CarparkId: " + this.carparkId);
 
-	@Override
-	public void recordAdhocTicketEntry() {
-		nParked++;
-		
-	}
+    }
+  }
 
+  @Override
+  public void deregisterSeasonTicket(ISeasonTicket seasonTicket) {
 
+    seasonTicketDAO.deregisterTicket(seasonTicket);
+  }
 
-	@Override
-	public void recordAdhocTicketExit() {
-		nParked--;
-		notifyObservers();		
-	}
+  @Override
+  public boolean isSeasonTicketValid(String ticketId) {
 
+   
 
+    Date dateTime = new Date();
 
-	@Override
-	public void recordSeasonTicketExit(String ticketId) {
-		ISeasonTicket ticket = seasonTicketDAO.findTicketById(ticketId);
-		if (ticket == null) throw new RuntimeException("recordSeasonTicketExit: invalid ticketId - " + ticketId);
-		
-		seasonTicketDAO.recordTicketExit(ticketId);
-		log(ticket.toString());
-	}
+    ISeasonTicket sTicket = seasonTicketDAO.findTicketById(ticketId);
 
+    return (dateTime.getTime() >= sTicket.getStartValidPeriod())
+            && (dateTime.getTime() <= sTicket.getEndValidPeriod());
+  }
 
+  @Override
+  public boolean isSeasonTicketInUse(String ticketId) {
 
-	@Override
-	public boolean isSeasonTicketInUse(String ticketId) {
-		ISeasonTicket ticket = seasonTicketDAO.findTicketById(ticketId);
-		if (ticket == null) throw new RuntimeException("recordSeasonTicketExit: invalid ticketId - " + ticketId);
-		
-		return ticket.inUse();
-	}
+    return seasonTicketDAO.findTicketById(ticketId).inUse();
 
+  }
 
+  @Override
+  public void recordSeasonTicketEntry(String ticketId) {
 
+    seasonTicketDAO.recordTicketEntry(ticketId);
+  }
 
+  @Override
+  public void recordSeasonTicketExit(String ticketId) {
 
+    seasonTicketDAO.recordTicketExit(ticketId);
 
+  }
 
-
-
-
-
-
-
-
-
-
-
+  // Following getter method to be removed after testing
+  public int getNumberOfCarsParked() {
+    return numberOfCarsParked;
+  }
 }
