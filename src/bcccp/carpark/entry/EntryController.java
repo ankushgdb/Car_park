@@ -36,16 +36,6 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
   private STATE prevState;
   private String message;
 
-  /**
-   * Description - a controller for sensing cars approaching and leaving the entry gate, raising and
-   * lowering the gate, and communicating information to the 'control pillar' and carpark.
-   *
-   * @param carpark short term or long term
-   * @param entryGate entry gate
-   * @param os sensor outside gate.
-   * @param is sensor inside gate
-   * @param ui control pillar user interface
-   */
   public EntryController(Carpark carpark, IGate entryGate, ICarSensor os, ICarSensor is, IEntryUI ui) {
 
     if (carpark != null && entryGate != null && os != null && is != null && ui != null) {
