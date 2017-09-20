@@ -1,59 +1,39 @@
-/*
- * This class save the usage record of each season ticket
- */
-
 package bcccp.tickets.season;
 
 public class UsageRecord implements IUsageRecord {
-	
-	private String ticketId_;
-	private long startDateTime_;
-	private long endDateTime_;
-	
-	
-	
-	public UsageRecord(String ticketId, long startDateTime) {
-		//TODO Implement constructor
-		ticketId_ = ticketId; 
-		startDateTime_ = startDateTime;
-	}
 
+  String ticketId;
+  long startDateTime;
+  long endDateTime;
 
+  /**
+   * This class represents each Season Ticket object, which is instantiated in Main method
+   *
+   * @param ticketId unique identifier for each Season Ticket
+   * @param startDateTime start date of season ticket usage on a date
+   */
+  public UsageRecord(String ticketId, long startDateTime) {
+    this.ticketId = ticketId;
+    this.startDateTime = startDateTime;
+  }
 
-	@Override
-	public void finalise(long endDateTime) {
-		// TODO Auto-generated method stub
-		endDateTime_ = endDateTime;
-	}
+  @Override
+  public void finalise(long endDateTime) {
+    this.endDateTime = endDateTime;
+  }
 
+  @Override
+  public long getStartTime() {
+    return startDateTime;
+  }
 
+  @Override
+  public long getEndTime() {
+    return endDateTime;
+  }
 
-	@Override
-	public long getStartTime() {
-		// TODO Auto-generated method stub
-		return startDateTime_;
-	}
-
-
-
-	@Override
-	public long getEndTime() {
-		// TODO Auto-generated method stub
-		return endDateTime_;
-	}
-
-
-
-	@Override
-	public String getSeasonTicketId() {
-		// TODO Auto-generated method stub
-		return ticketId_;
-	}
-	
-	public String toString() {
-		return ("Ticket ID: " + ticketId_
-				+ "Usage : startDateTime : " + startDateTime_ 
-				+ ", endDateTime: " + endDateTime_);
-	}
-	
+  @Override
+  public String getSeasonTicketId() {
+    return ticketId;
+  }
 }
