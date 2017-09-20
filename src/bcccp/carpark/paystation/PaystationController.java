@@ -13,14 +13,13 @@ public class PaystationController
 	  private IAdhocTicket adhocTicket = null;
 	  private float charge;
 
-	public PaystationController(ICarpark carpark, IPaystationUI ui) {
-		
-		this.carpark_ = carpark;
-		this.ui_ = ui;
-		
-		ui.registerController(this);		
-		setState(STATE.IDLE);		
-	}
+	  public PaystationController(ICarpark carpark, IPaystationUI ui) {
+
+		    ui.registerController(this);
+		    this.carpark = carpark;
+		    this.ui = ui;
+		    ui.display("Idle");
+		  }
 
 	private void log(String message) {
 		System.out.println("EntryController : " + message);
