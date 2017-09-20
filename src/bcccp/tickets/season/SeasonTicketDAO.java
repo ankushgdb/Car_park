@@ -1,92 +1,114 @@
-/* This class is implemented for registering/deregistering one season ticket 
- * When a new ticket is registered, ticket factory will create a list of usage for that ticket
- * no of tickets is incremented by 1 automatically
- * new season ticket will be added in the ticket list
- */
-
 package bcccp.tickets.season;
 
-import java.util.HashMap;
-import java.util.Map;
 
-import bcccp.tickets.season.ISeasonTicket;
-import bcccp.tickets.season.IUsageRecordFactory;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 
 public class SeasonTicketDAO implements ISeasonTicketDAO {
 
-	private IUsageRecordFactory usageRecordFactory;
-	private Map<String,ISeasonTicket> currentTickets; //create a map with ticketId and ticket
-	
-	
-	public SeasonTicketDAO(IUsageRecordFactory factory) {
-		//TOD Implement constructor
-		this.usageRecordFactory = factory;
-		currentTickets = new HashMap<>();
-	}
+  private List<ISeasonTicket> seasonTickets;
+  private IUsageRecordFactory factory;
 
+  /**
+   * This class records the usage of Season Tickets
+   *
+   * @param factory factory for making Season Ticket usage records
+   */
+  public SeasonTicketDAO(IUsageRecordFactory factory) {
 
+    this.factory = factory;
 
-	@Override
-	public void registerTicket(ISeasonTicket ticket) {
-		// TODO Auto-generated method stub
-		if (!currentTickets.containsKey(ticket.getId())) {
-			currentTickets.put(ticket.getId(),ticket);
-		}
-	}
+    seasonTickets = new ArrayList<>();
+  }
 
+  @Override
+  public void registerTicket(ISeasonTicket ticket) {
 
+    seasonTickets.add(ticket);
+  }
 
-	@Override
-	public void deregisterTicket(ISeasonTicket ticket) {
-		// TODO Auto-generated method stub
-		if (currentTickets.containsKey(ticket.getId())) {
-			currentTickets.remove(ticket.getId());
-		}
-	}
+  @Override
+  public void deregisterTicket(ISeasonTicket ticket) {
 
+    Iterator<ISeasonTicket> sTicketRecs = seasonTickets.iterator();
 
+    while (sTicketRecs.hasNext()) {
 
-	@Override
-	public int getNumberOfTickets() {
-		// TODO Auto-generated method stub
-		return currentTickets.size();
-	}
+      if (sTicketRecs.next().getId().equals(ticket.getId())) {
 
+        sTicketRecs.remove();
 
+        break;
 
-	@Override
-	public ISeasonTicket findTicketById(String ticketId) {
-		// TODO Auto-generated method stub
-		ISeasonTicket ticketFound = null;
-		if (currentTickets.containsKey(ticketId)) {
-			return ticketFound = currentTickets.get(ticketId);
-		}
-		return ticketFound;
-	}
+      }
+    }
+  }
 
+  @Override
+  public int getNumberOfTickets() {
 
+    return seasonTickets.size();
+  }
 
-	@Override
-	public void recordTicketEntry(String ticketId) {
-		// TODO Auto-generated method stub
-		ISeasonTicket ticket = findTicketById(ticketId);
-		if (ticket == null) throw new RuntimeException("recordTicketUsage : no such ticket: " + ticketId);
-		IUsageRecord usageRecord = usageRecordFactory.make(ticketId, System.currentTimeMillis()); 
-		// make new usage record from factory with system time
-		ticket.recordUsage(usageRecord);
-	}
+  @Override
+  public ISeasonTicket findTicketById(String ticketId) {
 
+    Iterator<ISeasonTicket> sTicketRecs = seasonTickets.iterator();
 
+    ISeasonTicket sTicket = null;
 
-	@Override
-	public void recordTicketExit(String ticketId) {
-		// TODO Auto-generated m.ethod stub
-		ISeasonTicket ticket = findTicketById(ticketId);
-		if (ticket == null) throw new RuntimeException("finaliseTicketUsage : no such ticket: " + ticketId);
-		ticket.endUsage(System.currentTimeMillis()); // end usage of the usage record with system time
-	}
-	
-	
-	
+    while (sTicketRecs.hasNext()) {
+
+      sTicket = sTicketRecs.next();
+
+      if (sTicket.getId().equals(ticketId)) {
+
+        break;
+
+      } else {
+
+        sTicket = null;
+      }
+    }
+    return sTicket;
+  }
+
+  @Override
+  public void recordTicketEntry(String ticketId) throws RuntimeException {
+
+    // This method creates a new usage record with current day and time as the startTime
+    // and uses recordUsage method from SeasonTicket class to record it to the ArrayList
+
+    Date dateTime = new Date();
+
+    IUsageRecord usageRecord = factory.make(ticketId, dateTime.getTime());
+
+    if (findTicketById(ticketId) != null) {
+
+      findTicketById(ticketId).recordUsage(usageRecord);
+
+    } else {
+
+      throw new RuntimeException("Runtime Exception: No corresponding ticket.");
+
+    }
+
+  }
+
+  @Override
+  public void recordTicketExit(String ticketId) {
+
+    // Finds an existing usage record and records the current day and time (on exiting of vehicle)
+    // on the record
+
+    Date dateTime = new Date();
+
+    findTicketById(ticketId).endUsage(dateTime.getTime());
+
+  }
+
 }
+
