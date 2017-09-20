@@ -7,22 +7,12 @@ import bcccp.carpark.CalcAdhocTicketCharge;
 public class PaystationController 
 		implements IPaystationController {
 	
-private enum STATE { IDLE, WAITING, REJECTED, PAID } 
-	
-	private STATE state_;
-	
-	private IPaystationUI ui_;
-	
-	private ICarpark carpark_;
+	  private IPaystationUI ui;
+	  private ICarpark carpark;
 
-	private IAdhocTicket  adhocTicket_ = null;
-	private float charge_;
-	
-	
-/*
- * State is IDLE
- * checking
- * */
+	  private IAdhocTicket adhocTicket = null;
+	  private float charge;
+
 	public PaystationController(ICarpark carpark, IPaystationUI ui) {
 		
 		this.carpark_ = carpark;
