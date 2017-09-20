@@ -122,7 +122,6 @@ public class Carpark implements ICarpark {
 
     ISeasonTicket sTicket = seasonTicketDAO.findTicketById(ticketId);
 
-=======
   @Override
   public void recordAdhocTicketExit() {
 
