@@ -19,10 +19,10 @@ public class AdhocTicketFactory implements IAdhocTicketFactory {
 		if (ticketNo <=0) {
 			throw new RuntimeException("Ticket number must be a positive number");
 		}
-		Long entryDateTime = new Date().getTime();
-		String barcode = 'A' + Integer.toHexString(ticketNo) + Long.toHexString(entryDateTime);
+		// Long entryDateTime = new Date().getTime();
+		String barcode = 'A' + Integer.toHexString(ticketNo);
 		IAdhocTicket adhocTicket = new AdhocTicket (carparkId, ticketNo, barcode);
-		adhocTicket.enter(entryDateTime); // record entry date & time
+		// adhocTicket.enter(entryDateTime); // record entry date & time
 		return adhocTicket;
 	}
 
