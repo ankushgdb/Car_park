@@ -6,6 +6,7 @@ import bcccp.carpark.ICarSensorResponder;
 import bcccp.carpark.ICarpark;
 import bcccp.carpark.ICarparkObserver;
 import bcccp.carpark.IGate;
+import bcccp.carpark.entry.EntryController.STATE;
 import bcccp.carpark.exit.ExitController;
 import bcccp.tickets.adhoc.IAdhocTicket;
 
@@ -36,23 +37,33 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
   private STATE prevState;
   private String message;
 
-  public EntryController(Carpark carpark, IGate entryGate, 
-			ICarSensor os, 
-			ICarSensor is,
-			IEntryUI ui) {
-		//TODO Implement constructor
-		this.carpark = carpark;
-		this.entryGate_ = entryGate;
-		this.outsideEntrySensor_ = os;
-		this.insideEntrySensor_ = is;
-		this.ui = ui;
-		
-		outsideEntrySensor_.registerResponder(this);
-		insideEntrySensor_.registerResponder(this);
-		ui.registerController(this);
-		
-		setState(STATE.IDLE);
-	}
+  public EntryController(Carpark carpark, IGate entryGate, ICarSensor os, ICarSensor is, IEntryUI ui) {
+
+	    if (carpark != null && entryGate != null && os != null && is != null && ui != null) {
+
+	      this.carpark = carpark;
+
+	      this.entryGate = entryGate;
+
+	      outsideSensor = os;
+
+	      insideSensor = is;
+
+	      this.ui = ui;
+
+	      outsideSensor.registerResponder(this);
+
+	      insideSensor.registerResponder(this);
+
+	      ui.registerController(this);
+
+	      setState(STATE.IDLE);
+
+	    } else {
+
+	      throw new RuntimeException("Arguments to constructor cannot be null.");
+	    }
+	  }
 
 	private void log(String message) {
 		System.out.println("EntryController : " + message);
