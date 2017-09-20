@@ -6,16 +6,16 @@ package bcccp.tickets.season;
 
 public class UsageRecord implements IUsageRecord {
 	
-	String ticketId;
-	long startDateTime;
-	long endDateTime;
+	private String ticketId_;
+	private long startDateTime_;
+	private long endDateTime_;
 	
 	
 	
 	public UsageRecord(String ticketId, long startDateTime) {
 		//TODO Implement constructor
-		ticketId = this.ticketId; 
-		startDateTime = this.startDateTime;
+		ticketId_ = ticketId; 
+		startDateTime_ = startDateTime;
 	}
 
 
@@ -23,7 +23,7 @@ public class UsageRecord implements IUsageRecord {
 	@Override
 	public void finalise(long endDateTime) {
 		// TODO Auto-generated method stub
-		endDateTime = this.endDateTime;
+		endDateTime_ = endDateTime;
 	}
 
 
@@ -31,7 +31,7 @@ public class UsageRecord implements IUsageRecord {
 	@Override
 	public long getStartTime() {
 		// TODO Auto-generated method stub
-		return startDateTime;
+		return startDateTime_;
 	}
 
 
@@ -39,7 +39,7 @@ public class UsageRecord implements IUsageRecord {
 	@Override
 	public long getEndTime() {
 		// TODO Auto-generated method stub
-		return endDateTime;
+		return endDateTime_;
 	}
 
 
@@ -47,9 +47,13 @@ public class UsageRecord implements IUsageRecord {
 	@Override
 	public String getSeasonTicketId() {
 		// TODO Auto-generated method stub
-		return ticketId;
+		return ticketId_;
 	}
 	
-	
+	public String toString() {
+		return ("Ticket ID: " + ticketId_
+				+ "Usage : startDateTime : " + startDateTime_ 
+				+ ", endDateTime: " + endDateTime_);
+	}
 	
 }

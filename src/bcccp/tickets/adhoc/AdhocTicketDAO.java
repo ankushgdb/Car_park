@@ -7,18 +7,26 @@
 package bcccp.tickets.adhoc;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AdhocTicketDAO  implements IAdhocTicketDAO  {
 
-	private IAdhocTicketFactory factory;
-	private int currentTicketNo;
-	private List<IAdhocTicket> adhocTicketList = new ArrayList<IAdhocTicket>();
+	private IAdhocTicketFactory adhocTicketFactory_;
+	private int currentTicketNo_; // when car park start, ticketNo = 0, increment by 1 for each ticket
+	private Map<String, IAdhocTicket> currentTickets; 
+		// create the map of currentTicket, with String as barcode
 	
 
-	public AdhocTicketDAO(IAdhocTicketFactory factory) {
+	public AdhocTicketDAO(IAdhocTicketFactory adhocTicketFactory) {
 		//TODO Implement constructor
-		this.factory = factory;
+		adhocTicketFactory_ = adhocTicketFactory;
+		currentTickets = new HashMap<String, IAdhocTicket>();
+		// currentTicketNo_ = 0; 
+		// when a new AdhocTicketDAO object is set up, no ticket is recorded yet 
+		// so currentTicketNo_=0
 	}
 
 
@@ -26,42 +34,41 @@ public class AdhocTicketDAO  implements IAdhocTicketDAO  {
 	@Override
 	public IAdhocTicket createTicket(String carparkId) {
 		// TODO Auto-generated method stub
-		currentTicketNo++; // when a ticket is issued, ticketNo increments by 1
-		IAdhocTicket adhocTicket = factory.make(carparkId, currentTicketNo); 
+		if (carparkId == null) {
+			throw new IllegalArgumentException("Carpark ID cannot be null");
+		}
+		IAdhocTicket adhocTicket = adhocTicketFactory_.make(carparkId, ++currentTicketNo_); 
 		// make ticket in factory with the new ticketNo
-		adhocTicketList.add(adhocTicket);
+		// when a ticket is issued, ticketNo increments by 1
+		currentTickets.put(adhocTicket.getBarcode(), adhocTicket);
 		return adhocTicket;
 	}
 
 
-
+	/* This method iterates every item in adhocTicketList 
+	 * and check whether the ticket has the same barcode.
+	 * If the ticket is the same, the search will stop and return the ticket 
+	 * (non-Javadoc)
+	 * @see bcccp.tickets.adhoc.IAdhocTicketDAO#getCurrentTickets()
+	 */
+	
 	@Override
 	public IAdhocTicket findTicketByBarcode(String barcode) {
 		// TODO Auto-generated method stub
-		IAdhocTicket ticketFound = null;
-		for (int i = 0; i < adhocTicketList.size(); i++) {
-			if (barcode == adhocTicketList.get(i).getBarcode()) {
-				ticketFound = adhocTicketList.get(i);
-				break;
-			}
-		}
-		return ticketFound;
+		return currentTickets.get(barcode);
 	}
 
 
-
+	/* This method generate the total tickets as in currentTickets
+	 * @see bcccp.tickets.adhoc.IAdhocTicketDAO#getCurrentTickets()
+	 */
 	@Override
 	public List<IAdhocTicket> getCurrentTickets() {
 		// TODO Auto-generated method stub
-		List<IAdhocTicket> currentTickets = new ArrayList<IAdhocTicket>();
-		for (int i = 0; i < currentTicketNo; i++) {
-			if (currentTickets.get(i).isCurrent() == true) {
-				currentTickets.add(currentTickets.get(i));
-			}
-		}
-		return currentTickets;
+		return Collections.unmodifiableList(new ArrayList<IAdhocTicket>(currentTickets.values()));
 	}
 
 	
 	
 }
+

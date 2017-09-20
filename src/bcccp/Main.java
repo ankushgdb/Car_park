@@ -12,6 +12,7 @@ import bcccp.carpark.exit.ExitUI;
 import bcccp.carpark.paystation.PaystationController;
 import bcccp.carpark.paystation.PaystationUI;
 import bcccp.tickets.adhoc.AdhocTicketFactory;
+import bcccp.tickets.adhoc.IAdhocTicket;
 import bcccp.tickets.adhoc.AdhocTicketDAO;
 import bcccp.tickets.adhoc.IAdhocTicketDAO;
 import bcccp.tickets.season.ISeasonTicket;
@@ -48,6 +49,14 @@ public class Main {
 					
 					carpark.registerSeasonTicket(t1);
 					carpark.registerSeasonTicket(t2);
+					
+					//issue a ticket so that paystation can be tested
+					carpark.issueAdhocTicket();
+					carpark.recordAdhocTicketEntry();
+					carpark.recordSeasonTicketEntry(t1.getId());
+					
+					IAdhocTicket ticket = carpark.issueAdhocTicket();
+					ticket.pay(System.currentTimeMillis(), 5.0f);
 					
 					@SuppressWarnings("unused")
 					EntryController entryController = 

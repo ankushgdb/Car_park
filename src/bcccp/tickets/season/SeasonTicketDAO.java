@@ -6,8 +6,8 @@
 
 package bcccp.tickets.season;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import bcccp.tickets.season.ISeasonTicket;
 import bcccp.tickets.season.IUsageRecordFactory;
@@ -15,13 +15,14 @@ import bcccp.tickets.season.IUsageRecordFactory;
 
 public class SeasonTicketDAO implements ISeasonTicketDAO {
 
-	private IUsageRecordFactory factory;
-	private List<ISeasonTicket> seasonTicketList = new ArrayList<ISeasonTicket>();
+	private IUsageRecordFactory usageRecordFactory;
+	private Map<String,ISeasonTicket> currentTickets; //create a map with ticketId and ticket
 	
 	
 	public SeasonTicketDAO(IUsageRecordFactory factory) {
 		//TOD Implement constructor
-		this.factory = factory;
+		this.usageRecordFactory = factory;
+		currentTickets = new HashMap<>();
 	}
 
 
@@ -29,7 +30,9 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 	@Override
 	public void registerTicket(ISeasonTicket ticket) {
 		// TODO Auto-generated method stub
-		seasonTicketList.add(ticket);
+		if (!currentTickets.containsKey(ticket.getId())) {
+			currentTickets.put(ticket.getId(),ticket);
+		}
 	}
 
 
@@ -37,7 +40,9 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 	@Override
 	public void deregisterTicket(ISeasonTicket ticket) {
 		// TODO Auto-generated method stub
-		seasonTicketList.remove(ticket);
+		if (currentTickets.containsKey(ticket.getId())) {
+			currentTickets.remove(ticket.getId());
+		}
 	}
 
 
@@ -45,7 +50,7 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 	@Override
 	public int getNumberOfTickets() {
 		// TODO Auto-generated method stub
-		return seasonTicketList.size();
+		return currentTickets.size();
 	}
 
 
@@ -54,10 +59,8 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 	public ISeasonTicket findTicketById(String ticketId) {
 		// TODO Auto-generated method stub
 		ISeasonTicket ticketFound = null;
-		for (int i = 0; i<seasonTicketList.size(); i++) {
-			if (seasonTicketList.get(i).getId()== ticketId) {
-				ticketFound = seasonTicketList.get(i);
-			}
+		if (currentTickets.containsKey(ticketId)) {
+			return ticketFound = currentTickets.get(ticketId);
 		}
 		return ticketFound;
 	}
@@ -67,7 +70,11 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 	@Override
 	public void recordTicketEntry(String ticketId) {
 		// TODO Auto-generated method stub
-		factory.make(ticketId, System.currentTimeMillis()); // make new usage record from factory with system time
+		ISeasonTicket ticket = findTicketById(ticketId);
+		if (ticket == null) throw new RuntimeException("recordTicketUsage : no such ticket: " + ticketId);
+		IUsageRecord usageRecord = usageRecordFactory.make(ticketId, System.currentTimeMillis()); 
+		// make new usage record from factory with system time
+		ticket.recordUsage(usageRecord);
 	}
 
 
@@ -75,7 +82,9 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 	@Override
 	public void recordTicketExit(String ticketId) {
 		// TODO Auto-generated m.ethod stub
-		findTicketById(ticketId).endUsage(System.currentTimeMillis()); // end usage of the usage record with system time
+		ISeasonTicket ticket = findTicketById(ticketId);
+		if (ticket == null) throw new RuntimeException("finaliseTicketUsage : no such ticket: " + ticketId);
+		ticket.endUsage(System.currentTimeMillis()); // end usage of the usage record with system time
 	}
 	
 	

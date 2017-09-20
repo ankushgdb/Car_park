@@ -18,7 +18,7 @@ public class Carpark implements ICarpark {
   private IAdhocTicketDAO adhocTicketDAO;
   private ISeasonTicketDAO seasonTicketDAO;
 
-  
+
   public Carpark(
           String name, int capacity, IAdhocTicketDAO adhocTicketDAO, ISeasonTicketDAO seasonTicketDAO) {
 
@@ -88,7 +88,6 @@ public class Carpark implements ICarpark {
   }
 
 
-
   @Override
   public void recordAdhocTicketExit() {
 
@@ -122,6 +121,42 @@ public class Carpark implements ICarpark {
     Date dateTime = new Date();
 
     ISeasonTicket sTicket = seasonTicketDAO.findTicketById(ticketId);
+
+=======
+  @Override
+  public void recordAdhocTicketExit() {
+
+    numberOfCarsParked--;
+  }
+
+  @Override
+  public void registerSeasonTicket(ISeasonTicket seasonTicket) {
+
+    seasonTicketDAO.registerTicket(seasonTicket);
+
+    if (seasonTicket.getCarparkId() != this.carparkId) {
+
+      throw new RuntimeException("SeasonTicket in registerSeasonTicket has invalid CarparkId: " +
+              seasonTicket.getCarparkId() + ", should be CarparkId: " + this.carparkId);
+
+    }
+  }
+
+  @Override
+  public void deregisterSeasonTicket(ISeasonTicket seasonTicket) {
+
+    seasonTicketDAO.deregisterTicket(seasonTicket);
+  }
+
+  @Override
+  public boolean isSeasonTicketValid(String ticketId) {
+
+   
+
+    Date dateTime = new Date();
+
+    ISeasonTicket sTicket = seasonTicketDAO.findTicketById(ticketId);
+
 
     return (dateTime.getTime() >= sTicket.getStartValidPeriod())
             && (dateTime.getTime() <= sTicket.getEndValidPeriod());
