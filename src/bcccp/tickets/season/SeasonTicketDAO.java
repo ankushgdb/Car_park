@@ -70,11 +70,13 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 
       } else {
 
+
         sTicket = null;
       }
     }
     return sTicket;
   }
+
 
   @Override
   public void recordTicketEntry(String ticketId) throws RuntimeException {
