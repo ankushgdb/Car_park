@@ -56,13 +56,12 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 
 
 	@Override
-	public ISeasonTicket findTicketById(String ticketId) {
+	public ISeasonTicket findTicketById(String barcode) {
 		// TODO Auto-generated method stub
-		ISeasonTicket ticketFound = null;
-		if (currentTickets.containsKey(ticketId)) {
-			return ticketFound = currentTickets.get(ticketId);
+		if (currentTickets.containsKey(barcode)) {
+			return currentTickets.get(barcode);
 		}
-		return ticketFound;
+		return null;
 	}
 
 
