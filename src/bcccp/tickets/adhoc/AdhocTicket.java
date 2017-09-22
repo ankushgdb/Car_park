@@ -1,10 +1,8 @@
 package bcccp.tickets.adhoc;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
+
 import java.util.Date;
-import java.util.regex.Pattern;
-import javax.xml.bind.DatatypeConverter;
+
 
 /**
  * A ticket for casual carpark users.
@@ -20,7 +18,6 @@ public class AdhocTicket implements IAdhocTicket {
     private float charge;
     private String barcode;
     private STATE state;
-    private String regex = "\\d{8}";
 
     private enum STATE {
         ISSUED,
