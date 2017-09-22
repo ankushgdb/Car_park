@@ -20,15 +20,7 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
   private long entryTime;
 
   private enum STATE {
-    IDLE,
-    WAITING,
-    FULL,
-    VALIDATED,
-    ISSUED,
-    TAKEN,
-    ENTERING,
-    ENTERED,
-    BLOCKED
+    IDLE,    WAITING,    FULL,    VALIDATED,    ISSUED,    TAKEN,    ENTERING,    ENTERED,    BLOCKED
   }
 
   private String seasonTicketId;
