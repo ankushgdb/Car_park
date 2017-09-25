@@ -2,7 +2,6 @@ package bcccp.carpark.paystation;
 
 import bcccp.carpark.ICarpark;
 import bcccp.tickets.adhoc.IAdhocTicket;
-import bcccp.carpark.CalcAdhocTicketCharge;
 
 public class PaystationController implements IPaystationController {
 
@@ -34,7 +33,7 @@ public class PaystationController implements IPaystationController {
 		if (state_ == STATE.IDLE) {
 			adhocTicket_ = carpark_.getAdhocTicket(barcode);
 			if (adhocTicket_ != null) {
-				charge_ = CalcAdhocTicketCharge.calculateAddHocTicketCharge(adhocTicket_.getEntryDateTime());
+				charge_ = carpark_.calculateAddHocTicketCharge(adhocTicket_.getEntryDateTime());
 				ui_.display("Pay " + String.format("%.2f", charge_));
 				setState(STATE.WAITING);
 			}
@@ -50,13 +49,14 @@ public class PaystationController implements IPaystationController {
 			log("ticketInserted: called while in incorrect state");				
 		}
 	}
-
+	
 	@Override
 	public void ticketPaid() {
 		if (state_ == STATE.WAITING) {
-			adhocTicket_.pay(adhocTicket_.getExitDateTime(), charge_);
-		carpark_.recordAdhocTicketExit();
-		ui_.printTicket(
+			long payTime = System.currentTimeMillis();
+			adhocTicket_.pay(payTime, charge_);
+			carpark_.recordAdhocTicketExit();
+			ui_.printTicket(
 				carpark_.getName(),
 				adhocTicket_.getTicketNo(),
 				adhocTicket_.getEntryDateTime(),
