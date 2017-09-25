@@ -58,7 +58,7 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
     if (state == STATE.WAITING) {
       if (!carpark.isFull()) {
         adhocTicket = carpark.issueAdhocTicket();
-        entryTime = adhocTicket.getEntryDateTime();
+        entryTime = System.currentTimeMillis();
         ui.printTicket(adhocTicket.getCarparkId(),adhocTicket.getTicketNo(), entryTime, adhocTicket.getBarcode());
         setState(STATE.ISSUED);
       } else {
@@ -324,6 +324,10 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
 
   public STATE getPreviousState() {
     return prevState;
+  }
+  
+  public String getStateAsString() {
+	  return state.name();
   }
 
 }
