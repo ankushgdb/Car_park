@@ -29,7 +29,7 @@ public class SeasonTicket implements ISeasonTicket {
 					  String carparkId,
 					  long startValidPeriod,
 			             long endValidPeriod) {
-	  if(ticketId == null || carparkId == null || startValidPeriod == 0 || endValidPeriod ==0)
+	  if(ticketId == null || carparkId == null)
 		{
 			throw new IllegalArgumentException("Parameters cannot be null");
 		}
