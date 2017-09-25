@@ -6,10 +6,11 @@ import bcccp.carpark.ICarSensorResponder;
 import bcccp.carpark.ICarpark;
 import bcccp.carpark.ICarparkObserver;
 import bcccp.carpark.IGate;
+import bcccp.carpark.exit.ExitController;
 import bcccp.tickets.adhoc.IAdhocTicket;
 
 public class EntryController implements ICarSensorResponder, ICarparkObserver, IEntryController {
-  
+
   private IAdhocTicket adhocTicket;
   private IGate entryGate;
   private ICarSensor outsideSensor;
@@ -19,7 +20,15 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
   private long entryTime;
 
   private enum STATE {
-    IDLE,    WAITING,    FULL,    VALIDATED,    ISSUED,    TAKEN,    ENTERING,    ENTERED,    BLOCKED
+    IDLE,
+    WAITING,
+    FULL,
+    VALIDATED,
+    ISSUED,
+    TAKEN,
+    ENTERING,
+    ENTERED,
+    BLOCKED
   }
 
   private String seasonTicketId;
@@ -27,10 +36,22 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
   private STATE prevState;
   private String message;
 
+  /**
+   * Description - a controller for sensing cars approaching and leaving the entry gate, raising and
+   * lowering the gate, and communicating information to the 'control pillar' and carpark.
+   *
+   * @param carpark short term or long term
+   * @param entryGate entry gate
+   * @param os sensor outside gate.
+   * @param is sensor inside gate
+   * @param ui control pillar user interface
+   */
   public EntryController(Carpark carpark, IGate entryGate, ICarSensor os, ICarSensor is, IEntryUI ui) {
 
     if (carpark != null && entryGate != null && os != null && is != null && ui != null) {
+
       this.carpark = carpark;
+
       this.entryGate = entryGate;
 
       outsideSensor = os;
@@ -58,8 +79,11 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
     if (state == STATE.WAITING) {
       if (!carpark.isFull()) {
         adhocTicket = carpark.issueAdhocTicket();
-        entryTime = System.currentTimeMillis();
-        ui.printTicket(adhocTicket.getCarparkId(),adhocTicket.getTicketNo(), entryTime, adhocTicket.getBarcode());
+
+        entryTime = adhocTicket.getEntryDateTime();
+
+        ui.printTicket(adhocTicket.toString());
+
         setState(STATE.ISSUED);
       } else {
         setState(STATE.FULL);
@@ -318,16 +342,12 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
     System.out.println("EntryController : " + message);
   }
 
-  public STATE getState() {
-    return state;
+  public String getState() {
+    return state.toString();
   }
 
-  public STATE getPreviousState() {
-    return prevState;
-  }
-  
-  public String getStateAsString() {
-	  return state.name();
+  public String getPreviousState() {
+    return prevState.toString();
   }
 
 }
