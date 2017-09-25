@@ -325,5 +325,9 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
   public STATE getPreviousState() {
     return prevState;
   }
+  
+  public String getStateAsString() {
+	  return state.name();
+  }
 
 }
