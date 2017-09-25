@@ -18,7 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-class IntegPaystationControllerTest {
+class PaystationControllerIntegrationTest {
 
 	static String name;
 	static int capacity;

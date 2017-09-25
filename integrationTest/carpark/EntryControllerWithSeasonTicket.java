@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class IntegrationEntryControllerwithSeasonTicket {
+public class IntegrationEntryControllerWithSeasonTicket {
 
     static ISeasonTicket testSeason;
     static Carpark testCarpark;

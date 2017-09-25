@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class IntegAdhocTicketFactoryTest {
+class IntegrationAdhocTicketFactoryTest {
   static AdhocTicketFactory adhocTicketFactory;
   static IAdhocTicket iadhocTicket;
   static AdhocTicketDAO adhocTicketDAO;
