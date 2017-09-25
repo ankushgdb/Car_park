@@ -8,167 +8,131 @@ import org.junit.Before;
 import org.junit.Test;
 
 import bcccp.carpark.ICarpark;
-import bcccp.carpark.exit.AdhocTicket;
-import bcccp.carpark.exit.IPaystationUI;
-import bcccp.carpark.exit.List;
-import bcccp.carpark.exit.UnfinishedVerificationException;
 import bcccp.carpark.paystation.*;
 import bcccp.tickets.adhoc.IAdhocTicket;
 
 public class PaystationControllerTest {
+
+	final String IDLE = "IDLE";
+	final String WAITING = "WAITING";
+	final String REJECTED = "REJECTED";
+	final String PAID = "PAID";
 	
-	enum STATE { IDLE, WAITING, REJECTED, PAID } 
-	
-	STATE state;
 	IPaystationUI ui;
 	ICarpark carpark;
 	IAdhocTicket  adhocTicket;
 	float charge;
-	IPaystationController payStation;
+	IPaystationController sut;
+	String barcode; // adhocTicket barcode
 
-	
+
 	@Before
 	public void setUp() throws Exception {
 		ui = mock(IPaystationUI.class);
 		carpark = mock(ICarpark.class);
 		adhocTicket = mock(IAdhocTicket.class);
-		payStation = new PaystationController(carpark, ui);
+		sut = new PaystationController(carpark, ui);
+		barcode = adhocTicket.getBarcode();
 	}
-	
+
 	@After
 	public void tearDown() throws Exception {
-		payStation = null;
+		sut = null;
 		adhocTicket = null;
 		carpark = null; 
 		ui = null;
 	}
-	
+
 	@Test
 	public void testInit()
 	{
-		assertTrue(payStation instanceof IPaystationController);
+		assertTrue(sut instanceof IPaystationController);
 		assertTrue(ui instanceof IPaystationUI);
 		assertTrue(carpark instanceof ICarpark);
 		assertTrue(adhocTicket instanceof IAdhocTicket);
 	}
-	
+
 	@Test(expected=RuntimeException.class) 
 	public void testConstructorWithNullCarpark() {
-		payStation = new PaystationController(null, ui);		
+		sut = new PaystationController(null, ui);		
 		fail("Should have thrown exception");
 	}
-	
+
 	@Test(expected=RuntimeException.class) 
-	public void testConstructorWithNullPayStationUI() {
-		payStation = new PaystationController(carpark, null);		
+	public void testConstructorWithNullUI() {
+		sut = new PaystationController(carpark, null);		
 		fail("Should have thrown exception");
 	}
 	
 	public void controllerIsStateIdle() throws NullPointerException {
-	    paystationController.ticketInserted(barcode);
-	    verify(userInterface).display(captor.capture());
-	    assertEquals("Idle", captor.getValue());
-	  }
-	
+		sut.ticketInserted(barcode);
+		assertEquals(IDLE, sut.getStateAsString());
+	}
+
 	@Test
-	  public void ticketInsertedIsBarcodeValidAndTicketReturned() throws NullPointerException {
-	    ticket = cp.getAdhocTicket(barcode);
-	    assertEquals(barcode, ticket.getBarcode());
-	  }
+	public void ticketInsertedIsBarcodeValidAndTicketReturned() throws NullPointerException {
+		adhocTicket = carpark.getAdhocTicket(barcode);
+		assertEquals(barcode, adhocTicket.getBarcode());
+	}
 
-	  @Test
-	  public void ticketInsertedAndReturnedCheckIsCurrent() {
-	    ticket = cp.getAdhocTicket(barcode);
-	    paystationController.ticketInserted(ticket.getBarcode());
-	    when(ticket.isCurrent()).thenReturn(true);
+	@Test
+	public void ticketInsertedAndReturnedCheckIsCurrent() {
+		adhocTicket = carpark.getAdhocTicket(barcode);
+		sut.ticketInserted(adhocTicket.getBarcode());
+		when(adhocTicket.isCurrent()).thenReturn(true);
 
-	  }
+	}
 
-	  @Test
-	  public void ticketInsertedAndReturnedCheckIsNotPaid() throws NullPointerException {
-	    ticket = cp.getAdhocTicket(barcode);
-	    paystationController.ticketInserted(ticket.getBarcode());
-	    when(ticket.isPaid()).thenReturn(false);
-	  }
+	@Test
+	public void ticketInsertedAndReturnedCheckIsNotPaid() throws NullPointerException {
+		adhocTicket = carpark.getAdhocTicket(barcode);
+		sut.ticketInserted(adhocTicket.getBarcode());
+		when(adhocTicket.isPaid()).thenReturn(false);
+	}
 
-	  @Test
-	  public void ticketInsertedIsChargeCalculated() throws NullPointerException {
-	    ticket = cp.getAdhocTicket(barcode);
-	    paystationController.ticketInserted(ticket.getBarcode());
-	    verify(userInterface).display(captor.capture());
-	    assertEquals("AU", captor.getValue().substring(0,1));
+	//@Test
+	//public void ticketInsertedIsChargeCalculated() throws NullPointerException {
+	//	adhocTicket = carpark.getAdhocTicket(barcode);
+	//	sut.ticketInserted(adhocTicket.getBarcode());
+	//	assert((float)3.00, adhocTicket.getCharge());
 
-	  }
+	//}
 
-	  @Test
-	  public void ticketInsertedNotIdle() {
+	@Test
+	public void ticketPaidIsStateWaiting() throws NullPointerException {
+		sut.ticketPaid();
+		assertEquals(WAITING, sut.getStateAsString());
 
-	    // Following variable declarations are to assist with debugging, in particular to see what's
-	    // inside the variables that are used as arguments in the dependent modules.
+	}
 
-	    String checkBarcode = barcode;
-	    ticket = new AdhocTicket("Flinders Lane", 34, barcode);
-	    when(cp.getAdhocTicket(barcode)).thenReturn(ticket);
-	    IAdhocTicket checkadhocTicket = cp.getAdhocTicket(barcode);
-	    long checkdateTime = ticket.getEntryDateTime();
-	    checkdateTime = cp.getAdhocTicket(barcode).getEntryDateTime();
-	    String checkDateInfo = ticket.toString();
-	    float checkCharge = CalcAdhocTicketCharge.calculateAddHocTicketCharge(checkdateTime);
-	    checkCharge = CalcAdhocTicketCharge.calculateAddHocTicketCharge(ticket.getEntryDateTime());
-	    paystationController.ticketInserted(barcode);
-	    verify(userInterface).display(captor.capture());
+	@Test
+	public void ticketPaidIsTimeAndChargeRecorded() throws NullPointerException {
+		adhocTicket = carpark.getAdhocTicket(barcode);
+		sut.ticketPaid();
+		verify(carpark).recordAdhocTicketExit();
+	}
 
-	    assertEquals("Idle", captor.getValue());
 
-	  }
+	@Test
+	public void ticketTakenIsStateWaiting() throws NullPointerException {
+		sut.ticketTaken();
+		assertEquals(WAITING, sut.getStateAsString());
+	}
 
-	  @Test
-	  public void ticketPaidIsStateWaiting() throws NullPointerException {
-	    paystationController.ticketPaid();
-	    verify(userInterface).display(captor.capture());
-	    assertEquals("Waiting", captor.getValue());
+	@Test
+	public void ticketTakenIsStatePaid() throws NullPointerException {
+		sut.ticketTaken();
+		assertEquals(PAID, sut.getStateAsString());
+	}
 
-	  }
 
-	  @Test
-	  public void ticketPaidIsTimeAndChargeRecorded() throws NullPointerException {
-	    ticket = cp.getAdhocTicket(barcode);
-	    paystationController.ticketPaid();
-	    verify(cp).recordAdhocTicketExit();
-	  }
+	}
 
-	  @Test
-	  public void ticketPaidIsPaymentPrinted() throws NullPointerException {
-	    paystationController.ticketPaid();
-	    argsList = ArgumentCaptor.forClass(IPaystationUI.class);
-	    List<IPaystationUI> numOfArgs = argsList.getAllValues();
-	    assertEquals(barcode, numOfArgs.get(5));
 
-	  }
 
-	  @Test
-	  public void ticketTakenIsStateWaiting() throws NullPointerException {
-	    paystationController.ticketTaken();
-	    verify(userInterface).display(captor.capture());
-	    assertEquals("Waiting", captor.getValue());
-	  }
 
-	  @Test
-	  public void ticketTakenIsStatePaid() throws NullPointerException {
-	    paystationController.ticketTaken();
-	    verify(userInterface).display(captor.capture());
-	    when(captor.capture().equals("Paid")).thenReturn(true);
-	  }
-
-	  @Test
-	  public void ticketTakenIsStateRejected() throws UnfinishedVerificationException {
-
-	    paystationController.ticketTaken();
-	    verify(userInterface).display(captor.capture());
-	    when(captor.capture().equals("Rejected")).thenReturn(true);
-
-	  }
-	 
 	
-}
-}
+
+	
+
+
