@@ -15,38 +15,22 @@ import java.util.Calendar;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class IntegExitControllerTest {
-
+public class ExitControllerIntegrationTest {
   static Carpark carpark;
-
   static ExitController sut;
-
   static IGate exitGate;
-
   static ICarSensor outsideSensor;
-
   static ICarSensor insideSensor;
-
   static IExitUI exitUserInterface;
-
   static IAdhocTicketDAO adhocTicketDAO;
-
   static AdhocTicketFactory adhocTicketFactory;
-
   static ISeasonTicketDAO seasonTicketDAO;
-
   static IUsageRecordFactory usageRecordFactory;
-
   static SeasonTicket seasonTicket;
-
   static IAdhocTicket adhocTicket;
-
   static String barcodeForAdhocTicket;
-
   static String idForSeasonTicket;
-
   static long validStartTime;
-
   static long validEndTime;
 
 
