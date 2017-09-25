@@ -1,4 +1,4 @@
-package bcccp.carpark.paystation;
+package integrationTest.carpark;
 
 import bcccp.carpark.Carpark;
 import bcccp.carpark.entry.EntryController;

@@ -1,4 +1,4 @@
-package bcccp.carpark.exit;
+package integrationTest.carpark;
 
 import bcccp.carpark.*;
 import bcccp.tickets.adhoc.*;

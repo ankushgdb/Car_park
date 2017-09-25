@@ -1,4 +1,4 @@
-package bcccp.tickets.season;
+package integrationTest.ticket;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

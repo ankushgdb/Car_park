@@ -1,4 +1,4 @@
-package bcccp.carpark.paystation;
+package integrationTest.carpark;
 
 import bcccp.carpark.CalcAdhocTicketCharge;
 import bcccp.carpark.Carpark;
