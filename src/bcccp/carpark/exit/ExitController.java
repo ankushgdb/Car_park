@@ -62,7 +62,7 @@ public class ExitController implements ICarSensorResponder, IExitController {
 		if (state == STATE.WAITING) {
 			if (isAdhocTicket(ticketStr)) {
 				adhocTicket = carpark.getAdhocTicket(ticketStr);
-				exitTime = new Date().getTime();
+				exitTime = System.currentTimeMillis();;
 				if (adhocTicket != null && adhocTicket.isPaid()) {
 					setState(STATE.PROCESSED);
 				} else {
