@@ -147,4 +147,10 @@ public class Carpark implements ICarpark {
 	public int getNumberOfCarsParked() {
 		return numberOfCarsParked;
 	}
+
+	@Override
+	public float calculateAddHocTicketCharge(long entryDateTime) {
+		// TODO Auto-generated method stub
+		return 3.0f;
+	}
 }
