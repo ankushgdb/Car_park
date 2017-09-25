@@ -6,11 +6,10 @@ import bcccp.carpark.ICarSensorResponder;
 import bcccp.carpark.ICarpark;
 import bcccp.carpark.ICarparkObserver;
 import bcccp.carpark.IGate;
-import bcccp.carpark.exit.ExitController;
 import bcccp.tickets.adhoc.IAdhocTicket;
 
 public class EntryController implements ICarSensorResponder, ICarparkObserver, IEntryController {
-
+  
   private IAdhocTicket adhocTicket;
   private IGate entryGate;
   private ICarSensor outsideSensor;
@@ -20,15 +19,7 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
   private long entryTime;
 
   private enum STATE {
-    IDLE,
-    WAITING,
-    FULL,
-    VALIDATED,
-    ISSUED,
-    TAKEN,
-    ENTERING,
-    ENTERED,
-    BLOCKED
+    IDLE,    WAITING,    FULL,    VALIDATED,    ISSUED,    TAKEN,    ENTERING,    ENTERED,    BLOCKED
   }
 
   private String seasonTicketId;
@@ -39,9 +30,7 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
   public EntryController(Carpark carpark, IGate entryGate, ICarSensor os, ICarSensor is, IEntryUI ui) {
 
     if (carpark != null && entryGate != null && os != null && is != null && ui != null) {
-
       this.carpark = carpark;
-
       this.entryGate = entryGate;
 
       outsideSensor = os;
@@ -69,11 +58,8 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
     if (state == STATE.WAITING) {
       if (!carpark.isFull()) {
         adhocTicket = carpark.issueAdhocTicket();
-
-        entryTime = adhocTicket.getEntryDateTime();
-
-        ui.printTicket(adhocTicket.toString());
-
+        entryTime = System.currentTimeMillis();
+        ui.printTicket(adhocTicket.getCarparkId(),adhocTicket.getTicketNo(), entryTime, adhocTicket.getBarcode());
         setState(STATE.ISSUED);
       } else {
         setState(STATE.FULL);
@@ -338,6 +324,10 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
 
   public STATE getPreviousState() {
     return prevState;
+  }
+  
+  public String getStateAsString() {
+	  return state.name();
   }
 
 }

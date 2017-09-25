@@ -29,6 +29,10 @@ public class SeasonTicket implements ISeasonTicket {
 					  String carparkId,
 					  long startValidPeriod,
 			             long endValidPeriod) {
+	  if(ticketId == null || carparkId == null || startValidPeriod == 0 || endValidPeriod ==0)
+		{
+			throw new IllegalArgumentException("Parameters cannot be null");
+		}
 
 		this.ticketId = ticketId;
 		this.carparkId = carparkId;
@@ -127,8 +131,7 @@ public class SeasonTicket implements ISeasonTicket {
 
 	@Override
 	public List<IUsageRecord> getUsageRecords() {
-
-    return usages;
+		return Collections.unmodifiableList(usages);
 	}
 
 
