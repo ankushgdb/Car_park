@@ -86,11 +86,6 @@ public class PaystationController implements IPaystationController {
 
 	}
 
-	@Override
-	public Object getState() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	private void setState(STATE newState) {
 		switch (newState) {

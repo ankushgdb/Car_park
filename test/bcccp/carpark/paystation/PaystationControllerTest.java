@@ -25,7 +25,6 @@ public class PaystationControllerTest {
 	IPaystationController sut;
 	String barcode; // adhocTicket barcode
 
-
 	@Before
 	public void setUp() throws Exception {
 		ui = mock(IPaystationUI.class);

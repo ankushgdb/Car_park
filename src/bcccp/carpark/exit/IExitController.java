@@ -6,5 +6,5 @@ public interface IExitController {
 	public String getStateAsString();
 	public String getPrevStateAsString();
 	public void carEventDetected(String detectorId, boolean detected); 
-
+	
 }

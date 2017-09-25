@@ -41,7 +41,6 @@ public class ExitControllerTest {
 	String barcode;
 	static IExitController sut;
 
-
 	final String IDLE = "IDLE";
 	final String WAITING = "WAITING";
 	final String PROCESSED = "PROCESSED";

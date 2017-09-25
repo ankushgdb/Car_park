@@ -10,7 +10,6 @@ import java.util.Date;
 
 public class ExitController implements ICarSensorResponder, IExitController {
 
-	static final long FIFTEEN_MINUTES = 900000; //fifteen minutes = 900000 milliseconds
 	private IGate exitGate;
 	private ICarSensor insideSensor;
 	private ICarSensor outsideSensor;
@@ -34,7 +33,6 @@ public class ExitController implements ICarSensorResponder, IExitController {
 	private STATE state;
 	private STATE prevState;
 	private String message;
-
 
 	public ExitController(Carpark carpark, IGate exitGate, ICarSensor is, ICarSensor os, IExitUI ui) {
 
