@@ -11,333 +11,322 @@ import bcccp.tickets.adhoc.IAdhocTicket;
 
 public class EntryController implements ICarSensorResponder, ICarparkObserver, IEntryController {
 
-  private IAdhocTicket adhocTicket;
-  private IGate entryGate;
-  private ICarSensor outsideSensor;
-  private ICarSensor insideSensor;
-  private IEntryUI ui;
-  private ICarpark carpark;
-  private long entryTime;
+	private IAdhocTicket adhocTicket;
+	private IGate entryGate;
+	private ICarSensor outsideSensor;
+	private ICarSensor insideSensor;
+	private IEntryUI ui;
+	private ICarpark carpark;
+	private long entryTime;
 
-  private enum STATE {
-    IDLE,
-    WAITING,
-    FULL,
-    VALIDATED,
-    ISSUED,
-    TAKEN,
-    ENTERING,
-    ENTERED,
-    BLOCKED
-  }
+	private enum STATE {
+		IDLE,
+		WAITING,
+		FULL,
+		VALIDATED,
+		ISSUED,
+		TAKEN,
+		ENTERING,
+		ENTERED,
+		BLOCKED
+	}
 
-  private String seasonTicketId;
-  private STATE state;
-  private STATE prevState;
-  private String message;
+	private String seasonTicketId;
+	private STATE state;
+	private STATE prevState;
+	private String message;
 
-  public EntryController(Carpark carpark, IGate entryGate, ICarSensor os, ICarSensor is, IEntryUI ui) {
+	public EntryController(Carpark carpark, IGate entryGate, ICarSensor os, ICarSensor is, IEntryUI ui) {
 
-    if (carpark != null && entryGate != null && os != null && is != null && ui != null) {
+		if (carpark != null && entryGate != null && os != null && is != null && ui != null) {
+			this.carpark = carpark;
+			this.entryGate = entryGate;
+			outsideSensor = os;
+			insideSensor = is;
+			this.ui = ui;
+			outsideSensor.registerResponder(this);
+			insideSensor.registerResponder(this);
+			ui.registerController(this);
+			setState(STATE.IDLE);
 
-      this.carpark = carpark;
+		} else {
 
-      this.entryGate = entryGate;
+			throw new RuntimeException("Arguments to constructor cannot be null.");
+		}
+	}
 
-      outsideSensor = os;
+	@Override
+	public void buttonPushed() {
+		if (state == STATE.WAITING) {
+			if (!carpark.isFull()) {
+				adhocTicket = carpark.issueAdhocTicket();
+				entryTime = adhocTicket.getEntryDateTime();
+				ui.printTicket(adhocTicket.getCarparkId(),adhocTicket.getTicketNo(), entryTime, adhocTicket.getBarcode());
 
-      insideSensor = is;
+				setState(STATE.ISSUED);
+			} else {
+				setState(STATE.FULL);
+			}
+		} else {
+			ui.beep();
+			log("ButtonPushed: called while in incorrect state");
+		}
+	}
 
-      this.ui = ui;
+	@Override
+	public void ticketInserted(String barcode) {
 
-      outsideSensor.registerResponder(this);
+		if (state == STATE.WAITING) {
+			try {
+				if (carpark.isSeasonTicketValid(barcode) && !carpark.isSeasonTicketInUse(barcode)) {
+					seasonTicketId = barcode;
+					setState(STATE.VALIDATED);
+				} else {
+					ui.beep();
+					seasonTicketId = null;
+					log("ticketInserted: invalid ticket id");
+				}
+			} catch (NumberFormatException e) {
+				ui.beep();
+				seasonTicketId = null;
+				log("ticketInserted: invalid ticket id");
+			}
+		} else {
+			ui.beep();
+			log("ticketInserted: called while in incorrect state");
+		}
+	}
 
-      insideSensor.registerResponder(this);
+	@Override
+	public void ticketTaken() {
 
-      ui.registerController(this);
+		if (state == STATE.ISSUED || state == STATE.VALIDATED) {
 
-      setState(STATE.IDLE);
+			setState(STATE.TAKEN);
 
-    } else {
+		} else {
 
-      throw new RuntimeException("Arguments to constructor cannot be null.");
-    }
-  }
+			ui.beep();
 
-  @Override
-  public void buttonPushed() {
-    if (state == STATE.WAITING) {
-      if (!carpark.isFull()) {
-        adhocTicket = carpark.issueAdhocTicket();
+			log("ticketTaken: called while in incorrect state");
+		}
+	}
 
-        entryTime = adhocTicket.getEntryDateTime();
+	@Override
+	public void notifyCarparkEvent() {
 
-        ui.printTicket(adhocTicket.toString());
+		if (state == STATE.FULL) {
 
-        setState(STATE.ISSUED);
-      } else {
-        setState(STATE.FULL);
-      }
-    } else {
-      ui.beep();
-      log("ButtonPushed: called while in incorrect state");
-    }
-  }
+			if (!carpark.isFull()) {
 
-  @Override
-  public void ticketInserted(String barcode) {
+				setState(STATE.WAITING);
+			}
+		}
+	}
 
-    if (state == STATE.WAITING) {
-      try {
-        if (carpark.isSeasonTicketValid(barcode) && !carpark.isSeasonTicketInUse(barcode)) {
-          seasonTicketId = barcode;
-          setState(STATE.VALIDATED);
-        } else {
-          ui.beep();
-          seasonTicketId = null;
-          log("ticketInserted: invalid ticket id");
-        }
-      } catch (NumberFormatException e) {
-        ui.beep();
-        seasonTicketId = null;
-        log("ticketInserted: invalid ticket id");
-      }
-    } else {
-      ui.beep();
-      log("ticketInserted: called while in incorrect state");
-    }
-  }
+	@Override
+	public void carEventDetected(String detectorId, boolean detected) {
 
-  @Override
-  public void ticketTaken() {
+		log("carEventDetected: " + detectorId + ", car Detected: " + detected);
 
-    if (state == STATE.ISSUED || state == STATE.VALIDATED) {
+		switch (state) {
+		case BLOCKED:
+			if (detectorId.equals(insideSensor.getId()) && !detected) {
+				setState(prevState);
+			}
+			break;
 
-      setState(STATE.TAKEN);
+		case IDLE:
+			log("eventDetected: IDLE");
 
-    } else {
+			if (detectorId.equals(outsideSensor.getId()) && detected) {
+				log("eventDetected: setting state to WAITING");
+				setState(STATE.WAITING);
+			} else if (detectorId.equals(insideSensor.getId()) && detected) {
+				setState(STATE.BLOCKED);
+			}
+			break;
 
-      ui.beep();
+		case WAITING:
+			log("eventDetected: WAITING");
 
-      log("ticketTaken: called while in incorrect state");
-    }
-  }
+			if (detectorId.equals(outsideSensor.getId()) && detected) {
+				log("eventDetected: setting state to WAITING");
+				setState(STATE.WAITING);
+			} else if (detectorId.equals(insideSensor.getId()) && detected) {
+				setState(STATE.BLOCKED);
+			}
+			break;
+		case FULL:
+			log("eventDetected: FULL");
 
-  @Override
-  public void notifyCarparkEvent() {
+			if (detectorId.equals(outsideSensor.getId()) && detected) {
+				log("eventDetected: setting state to WAITING");
+				setState(STATE.WAITING);
+			} else if (detectorId.equals(insideSensor.getId()) && detected) {
+				setState(STATE.BLOCKED);
+			}
+			break;
+		case VALIDATED:
+		case ISSUED:
+			if (detectorId.equals(outsideSensor.getId()) && !detected) {
+				setState(STATE.IDLE);
+			} else if (detectorId.equals(insideSensor.getId()) && detected) {
+				setState(STATE.BLOCKED);
+			}
+			break;
 
-    if (state == STATE.FULL) {
+		case TAKEN:
+			if (detectorId.equals(outsideSensor.getId()) && !detected) {
+				setState(STATE.IDLE);
+			} else if (detectorId.equals(insideSensor.getId()) && detected) {
+				setState(STATE.ENTERING);
+			}
+			break;
 
-      if (!carpark.isFull()) {
+		case ENTERING:
+			if (detectorId.equals(outsideSensor.getId()) && !detected) {
+				setState(STATE.ENTERED);
+			} else if (detectorId.equals(insideSensor.getId()) && !detected) {
+				setState(STATE.TAKEN);
+			}
+			break;
 
-        setState(STATE.WAITING);
-      }
-    }
-  }
+		case ENTERED:
+			if (detectorId.equals(outsideSensor.getId()) && detected) {
+				setState(STATE.ENTERING);
+			} else if (detectorId.equals(insideSensor.getId()) && !detected) {
+				setState(STATE.IDLE);
+			}
+			break;
 
-  @Override
-  public void carEventDetected(String detectorId, boolean detected) {
+		default:
+			break;
+		}
+	}
 
-    log("carEventDetected: " + detectorId + ", car Detected: " + detected);
+	private void setState(STATE newState) {
+		switch (newState) {
+		case BLOCKED:
+			log("setState: BLOCKED");
+			prevState = state;
+			state = STATE.BLOCKED;
+			message = "Blocked";
+			ui.display(message);
+			break;
 
-    switch (state) {
-      case BLOCKED:
-        if (detectorId.equals(insideSensor.getId()) && !detected) {
-          setState(prevState);
-        }
-        break;
+		case IDLE:
+			log("setState: IDLE");
+			if (prevState == STATE.ENTERED) {
+				if (adhocTicket != null) {
+					adhocTicket.enter(entryTime);
+					carpark.recordAdhocTicketEntry();
+					entryTime = 0;
+					log(adhocTicket.toString());
+					adhocTicket = null;
+				} else if (seasonTicketId != null) {
+					carpark.recordSeasonTicketEntry(seasonTicketId);
+					seasonTicketId = null;
+				}
+			}
+			message = "Idle";
+			state = STATE.IDLE;
+			prevState = state;
+			ui.display(message);
+			if (outsideSensor.carIsDetected()) {
+				setState(STATE.WAITING);
+			}
+			if (entryGate.isRaised()) {
+				entryGate.lower();
+			}
+			ui.discardTicket();
+			break;
 
-      case IDLE:
-        log("eventDetected: IDLE");
+		case WAITING:
+			log("setState: WAITING");
+			message = "Push Button";
+			state = STATE.WAITING;
+			prevState = state;
+			ui.display(message);
+			if (!outsideSensor.carIsDetected()) {
+				setState(STATE.IDLE);
+			}
+			break;
 
-        if (detectorId.equals(outsideSensor.getId()) && detected) {
-          log("eventDetected: setting state to WAITING");
-          setState(STATE.WAITING);
-        } else if (detectorId.equals(insideSensor.getId()) && detected) {
-          setState(STATE.BLOCKED);
-        }
-        break;
+		case FULL:
+			log("setState: FULL");
+			message = "Carpark Full";
+			state = STATE.FULL;
+			prevState = state;
+			if (entryGate.isRaised()) {
+				entryGate.lower();
+			}
+			ui.display(message);
+			break;
 
-      case WAITING:
-        log("eventDetected: WAITING");
+		case VALIDATED:
+			log("setState: VALIDATED");
+			message = "Ticket Validated";
+			state = STATE.VALIDATED;
+			prevState = state;
+			ui.display(message);
+			if (!outsideSensor.carIsDetected()) {
+				setState(STATE.IDLE);
+			}
+			break;
 
-        if (detectorId.equals(outsideSensor.getId()) && detected) {
-          log("eventDetected: setting state to WAITING");
-          setState(STATE.WAITING);
-        } else if (detectorId.equals(insideSensor.getId()) && detected) {
-          setState(STATE.BLOCKED);
-        }
-        break;
-      case FULL:
-        log("eventDetected: FULL");
+		case ISSUED:
+			log("setState: ISSUED");
+			message = "Take Ticket";
+			state = STATE.ISSUED;
+			prevState = state;
+			ui.display(message);
+			if (!outsideSensor.carIsDetected()) {
+				setState(STATE.IDLE);
+			}
+			break;
 
-        if (detectorId.equals(outsideSensor.getId()) && detected) {
-          log("eventDetected: setting state to WAITING");
-          setState(STATE.WAITING);
-        } else if (detectorId.equals(insideSensor.getId()) && detected) {
-          setState(STATE.BLOCKED);
-        }
-        break;
-      case VALIDATED:
-      case ISSUED:
-        if (detectorId.equals(outsideSensor.getId()) && !detected) {
-          setState(STATE.IDLE);
-        } else if (detectorId.equals(insideSensor.getId()) && detected) {
-          setState(STATE.BLOCKED);
-        }
-        break;
+		case TAKEN:
+			log("setState: TAKEN");
+			message = "Ticket Taken";
+			state = STATE.TAKEN;
+			prevState = state;
+			ui.display(message);
+			entryGate.raise();
+			break;
 
-      case TAKEN:
-        if (detectorId.equals(outsideSensor.getId()) && !detected) {
-          setState(STATE.IDLE);
-        } else if (detectorId.equals(insideSensor.getId()) && detected) {
-          setState(STATE.ENTERING);
-        }
-        break;
+		case ENTERING:
+			log("setState: ENTERING");
+			message = "Entering";
+			state = STATE.ENTERING;
+			prevState = state;
+			ui.display(message);
+			notifyCarparkEvent();
+			break;
 
-      case ENTERING:
-        if (detectorId.equals(outsideSensor.getId()) && !detected) {
-          setState(STATE.ENTERED);
-        } else if (detectorId.equals(insideSensor.getId()) && !detected) {
-          setState(STATE.TAKEN);
-        }
-        break;
+		case ENTERED:
+			log("setState: ENTERED");
+			message = "Entered";
+			state = STATE.ENTERED;
+			prevState = state;
+			ui.display(message);
+			break;
 
-      case ENTERED:
-        if (detectorId.equals(outsideSensor.getId()) && detected) {
-          setState(STATE.ENTERING);
-        } else if (detectorId.equals(insideSensor.getId()) && !detected) {
-          setState(STATE.IDLE);
-        }
-        break;
+		default:
+			break;
+		}
+	}
 
-      default:
-        break;
-    }
-  }
+	private void log(String message) {
+		System.out.println("EntryController : " + message);
+	}
 
-  private void setState(STATE newState) {
-    switch (newState) {
-      case BLOCKED:
-        log("setState: BLOCKED");
-        prevState = state;
-        state = STATE.BLOCKED;
-        message = "Blocked";
-        ui.display(message);
-        break;
+	public STATE getState() {
+		return state;
+	}
 
-      case IDLE:
-        log("setState: IDLE");
-        if (prevState == STATE.ENTERED) {
-          if (adhocTicket != null) {
-            adhocTicket.enter(entryTime);
-            carpark.recordAdhocTicketEntry();
-            entryTime = 0;
-            log(adhocTicket.toString());
-            adhocTicket = null;
-          } else if (seasonTicketId != null) {
-            carpark.recordSeasonTicketEntry(seasonTicketId);
-            seasonTicketId = null;
-          }
-        }
-        message = "Idle";
-        state = STATE.IDLE;
-        prevState = state;
-        ui.display(message);
-        if (outsideSensor.carIsDetected()) {
-          setState(STATE.WAITING);
-        }
-        if (entryGate.isRaised()) {
-          entryGate.lower();
-        }
-        ui.discardTicket();
-        break;
-
-      case WAITING:
-        log("setState: WAITING");
-        message = "Push Button";
-        state = STATE.WAITING;
-        prevState = state;
-        ui.display(message);
-        if (!outsideSensor.carIsDetected()) {
-          setState(STATE.IDLE);
-        }
-        break;
-
-      case FULL:
-        log("setState: FULL");
-        message = "Carpark Full";
-        state = STATE.FULL;
-        prevState = state;
-        if (entryGate.isRaised()) {
-          entryGate.lower();
-        }
-        ui.display(message);
-        break;
-
-      case VALIDATED:
-        log("setState: VALIDATED");
-        message = "Ticket Validated";
-        state = STATE.VALIDATED;
-        prevState = state;
-        ui.display(message);
-        if (!outsideSensor.carIsDetected()) {
-          setState(STATE.IDLE);
-        }
-        break;
-
-      case ISSUED:
-        log("setState: ISSUED");
-        message = "Take Ticket";
-        state = STATE.ISSUED;
-        prevState = state;
-        ui.display(message);
-        if (!outsideSensor.carIsDetected()) {
-          setState(STATE.IDLE);
-        }
-        break;
-
-      case TAKEN:
-        log("setState: TAKEN");
-        message = "Ticket Taken";
-        state = STATE.TAKEN;
-        prevState = state;
-        ui.display(message);
-        entryGate.raise();
-        break;
-
-      case ENTERING:
-        log("setState: ENTERING");
-        message = "Entering";
-        state = STATE.ENTERING;
-        prevState = state;
-        ui.display(message);
-        notifyCarparkEvent();
-        break;
-
-      case ENTERED:
-        log("setState: ENTERED");
-        message = "Entered";
-        state = STATE.ENTERED;
-        prevState = state;
-        ui.display(message);
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  private void log(String message) {
-    System.out.println("EntryController : " + message);
-  }
-
-  public STATE getState() {
-    return state;
-  }
-
-  public STATE getPreviousState() {
-    return prevState;
-  }
+	public STATE getPreviousState() {
+		return prevState;
+	}
 
 }
