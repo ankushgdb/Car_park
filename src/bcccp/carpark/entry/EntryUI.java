@@ -193,16 +193,10 @@ public class EntryUI extends JFrame implements IEntryUI {
 	
 	
 	@Override
-	public void printTicket(String carparkId, int tNo, long datetime, String barcode) {
-		Date entryDate = new Date(datetime);
-		StringBuilder builder = new StringBuilder();
-		builder.append("Carpark    : " + carparkId + "\n");
-		builder.append("Ticket No  : " + tNo + "\n");
-		builder.append("Entry Time : " + entryDate + "\n");
-		builder.append("Barcode    : " + barcode + "\n");
-		
-		ticketPrinterTextArea.setText(builder.toString());			
-	}
+	public void printTicket(String ticketDetails) {
+        ticketPrinterTextArea.setText(ticketDetails);
+    }
+
 
 	
 	
