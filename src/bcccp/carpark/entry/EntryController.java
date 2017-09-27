@@ -76,7 +76,27 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
 
   @Override
   public void buttonPushed() {
-    if (state == STATE.WAITING) {
+	  if (state == STATE.WAITING) {
+		  if (carpark.isFull()) {
+			  setState(STATE.FULL);
+			  ui.display("Carpark Full");
+		  }
+		  else {
+			  adhocTicket = carpark.issueAdhocTicket();
+			  entryTime = adhocTicket.getEntryDateTime();
+			  ui.printTicket(adhocTicket.toString());
+			  setState(STATE.ISSUED);
+		  }
+	  }
+	  else if (state == STATE.FULL) {
+		  ui.display("Carpark Full");
+	  }
+	  else {
+		  ui.beep();
+	      log("ButtonPushed: called while in incorrect state");
+	  }
+	  
+   /* if (state == STATE.WAITING) {
       if (!carpark.isFull()) {
         adhocTicket = carpark.issueAdhocTicket();
 
@@ -91,7 +111,7 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
     } else {
       ui.beep();
       log("ButtonPushed: called while in incorrect state");
-    }
+    }*/
   }
 
   @Override
@@ -135,14 +155,19 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
 
   @Override
   public void notifyCarparkEvent() {
-
-    if (state == STATE.FULL) {
+// new fix
+	  if (state == STATE.ENTERING && carpark.isFull()) {
+		  setState(STATE.FULL);
+	  }
+		  
+		  // end of new fix 
+   /* if (state == STATE.FULL) {
 
       if (!carpark.isFull()) {
 
         setState(STATE.WAITING);
       }
-    }
+    }*/
   }
 
   @Override
@@ -238,18 +263,18 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
 
       case IDLE:
         log("setState: IDLE");
-        if (prevState == STATE.ENTERED) {
-          if (adhocTicket != null) {
-            adhocTicket.enter(entryTime);
-            carpark.recordAdhocTicketEntry();
-            entryTime = 0;
-            log(adhocTicket.toString());
-            adhocTicket = null;
-          } else if (seasonTicketId != null) {
-            carpark.recordSeasonTicketEntry(seasonTicketId);
-            seasonTicketId = null;
-          }
-        }
+//        if (prevState == STATE.ENTERED) {
+//          if (adhocTicket != null) {
+//            adhocTicket.enter(entryTime);
+//            carpark.recordAdhocTicketEntry();
+//            entryTime = 0;
+//            log(adhocTicket.toString());
+//            adhocTicket = null;
+//          } else if (seasonTicketId != null) {
+//            carpark.recordSeasonTicketEntry(seasonTicketId);
+//            seasonTicketId = null;
+//          }
+//        }
         message = "Idle";
         state = STATE.IDLE;
         prevState = state;
@@ -322,6 +347,20 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
         state = STATE.ENTERING;
         prevState = state;
         ui.display(message);
+     // new fix
+        if (adhocTicket != null) {
+        	adhocTicket.enter(entryTime);
+        	carpark.recordAdhocTicketEntry();
+        	entryTime = 0;
+        	log(adhocTicket.toString());
+        	adhocTicket = null;
+        	break;
+        }
+        if (seasonTicketId != null) {
+        	carpark.recordSeasonTicketEntry(seasonTicketId);
+        	seasonTicketId = null;
+        }
+        // end of new fix
         notifyCarparkEvent();
         break;
 
@@ -331,7 +370,6 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
         state = STATE.ENTERED;
         prevState = state;
         ui.display(message);
-        break;
 
       default:
         break;
