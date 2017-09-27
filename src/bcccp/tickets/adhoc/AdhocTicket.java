@@ -34,7 +34,7 @@ public class AdhocTicket implements IAdhocTicket {
      * @param barcode   the string of values encoded by the barcode. Cannot be null or empty.
      */
     public AdhocTicket(String carparkId, int ticketNo, String barcode) {
-    	if (isValue(carparkId) && isValidID(ticketNo) && isValue(barcode)) { {
+    	if (isValue(carparkId) && isValidID(ticketNo) && isValue(barcode)) { 
             this.carparkId = carparkId;
             this.ticketNo = ticketNo;
             this.barcode = barcode;
@@ -82,7 +82,7 @@ public class AdhocTicket implements IAdhocTicket {
 
     @Override
     public void pay(long dateTime, float charge) {
-        paidDateTime = dateTime;
+        this.paidDateTime = dateTime;
         this.charge = charge;
         state = STATE.PAID;
     }
@@ -135,6 +135,10 @@ public class AdhocTicket implements IAdhocTicket {
     }
     private Boolean isValidID(int id) {
         return id > 0;
+    }
+    @Override
+    public String getState() {
+    	return state.name();
     }
 
   

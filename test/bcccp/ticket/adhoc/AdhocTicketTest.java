@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.text.SimpleDateFormat;
-
+import java.util.Date;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,23 +14,19 @@ import bcccp.tickets.adhoc.*;
 
 public class AdhocTicketTest {
 	
-	private String carparkId;
-    private int ticketNo;
-    private long entryDateTime;
-    private long paidDateTime;
-    private long exitDateTime;
-    private float charge;
-    private String barcode;
-    private STATE state;
-
-    private enum STATE {
-        ISSUED,
-        CURRENT,
-        PAID,
-        EXITED
-    }
+	String carparkId;
+    int ticketNo;
+    long entryDateTime;
+    long paidDateTime;
+    long exitDateTime;
+    float charge;
+    String barcode;
+    final String ISSUED = "ISSUED";
+    final String CURRENT = "CURRENT";
+    final String PAID = "PAID";
+    final String EXITED = "EXITED";
     
-    private IAdhocTicket adhocTicket;
+    private IAdhocTicket sut;
 
 	@Before
 	public void setUp() throws Exception {
@@ -38,121 +34,175 @@ public class AdhocTicketTest {
 		ticketNo = 1760;
 		carparkId = "278";
 		barcode = "A1760";
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		entryDateTime = sdf.parse("2017-06-12 12:00:00").getTime(); //1497232800000
-		paidDateTime = sdf.parse("2017-06-12 14:00:00").getTime();
-		exitDateTime = sdf.parse("2017-06-12 14:05:00").getTime();
 		charge = (float) 3.00;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		
-		new AdhocTicket(carparkId, ticketNo, barcode);
+		sut = new AdhocTicket(carparkId, ticketNo, barcode);
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		adhocTicket = null;
-	}
-
-	@Test
-	public void testInit()
-	{
-		assertTrue(adhocTicket instanceof IAdhocTicket);	
+		carparkId="";
+		barcode = "";
+		sut = null;
 	}
 	
 	@Test(expected=RuntimeException.class) 
 	public void testConstructorWithInvalidTicketId() {
-		adhocTicket = new AdhocTicket(carparkId, -1 , barcode);		
-		fail("Should bave thrown exception");
+		sut = new AdhocTicket(carparkId, -1 , barcode);		
+		fail("Should have thrown exception");
 	}
 	
 	@Test(expected=RuntimeException.class) 
 	public void testConstructorWithNullCarparkId() {
-		adhocTicket = new AdhocTicket(null, ticketNo, barcode);		
-		fail("Should bave thrown exception");
+		sut = new AdhocTicket(null, ticketNo, barcode);		
+		fail("Should have thrown exception");
 	}
 	
 	@Test(expected=RuntimeException.class)
 	public void testConstructorWithNullBarcode( ) {
-		adhocTicket = new AdhocTicket(carparkId, ticketNo, null);
-		fail("Should bave thrown exception");
+		sut = new AdhocTicket(carparkId, ticketNo, null);
+		fail("Should have thrown exception");
 	}
 	
 	@Test
 	public void testGetTicketNo()
 	{
-		int no = adhocTicket.getTicketNo();
-		assertEquals(no, ticketNo);
+		int expected = ticketNo;
+		int result = sut.getTicketNo();
+		assertEquals(expected, result);
 	}
 	
 	@Test
 	public void testGetBarcode() {
-		String bc = adhocTicket.getBarcode();
-		assertEquals(bc, barcode);
+		String expected = barcode;
+		String result = sut.getBarcode();
+		assertEquals(expected, result);
 	}
 
 	@Test
 	public void testGetCarparkId() {
-		String id = adhocTicket.getCarparkId();
-		assertEquals(id,carparkId);
+		String expected = carparkId;
+		String result = sut.getCarparkId();
+		assertEquals(expected, result);
 	}
-
-	/* @Test
-	public void testEnter() {
-
-		
-	}*/
 
 	@Test
+	public void testEnter() {
+		long dateTime = new Date().getTime();
+		sut.enter(dateTime);
+		assertTrue(CURRENT.equals(sut.getState()));
+	}
+	
+	@Test
 	public void testGetEntryDateTime() {
-		long dt = adhocTicket.getEntryDateTime();
-		assertEquals(dt, entryDateTime);
+		long dateTime = new Date().getTime();
+		sut.enter(dateTime);
+		assertEquals(dateTime, sut.getEntryDateTime());
 	}
 
-	/* @Test
-	public void testIsCurrent() {
-		fail("Not yet implemented");
-	}*/
+	@Test
+	public void testIsCurrentWithCurrentTicket() {
+		long dateTime = new Date().getTime();
+		sut.enter(dateTime);
+		boolean expected = true;
+		boolean result = sut.isCurrent();
+		assertEquals(expected, result);
+	}
+	
+	@Test
+	public void testIsCurrentWithExitedTicket() {
+		long dateTime = new Date().getTime();
+		sut.exit(dateTime);
+		boolean expected = false;
+		boolean result = sut.isCurrent();
+		assertEquals(expected, result);
+	}
+	
 
-	/*@Test
+	@Test
 	public void testPay() {
-		fail("Not yet implemented");
-	}*/
+		long dateTime = new Date().getTime();
+		sut.pay(dateTime, charge);
+		assertTrue(PAID.equals(sut.getState()));
+	}
 
 	@Test
 	public void testGetPaidDateTime() {
-		long dt = adhocTicket.getPaidDateTime();
-		assertEquals(dt, paidDateTime);
+		long dateTime = new Date().getTime();
+		sut.pay(dateTime, charge);
+		assertEquals(dateTime, sut.getPaidDateTime());
 	}
 
-	/*@Test
-	public void testIsPaid() {
-		fail("Not yet implemented");
-	}*/
-
-	/*@Test
-	public void testGetCharge() {
-		fail("Not yet implemented");
-	}*/
-
-	/*@Test
-	public void testToString() {
-		fail("Not yet implemented");
-	}*/
-
-	/*@Test
+	@Test
+	public void testIsPaidtWithCurrentTicket() {
+		long dateTime = new Date().getTime();
+		sut.enter(dateTime);
+		boolean expected = false;
+		boolean result = sut.isPaid();
+		assertEquals(expected, result);
+	}
+	
+	@Test
+	public void testIsPaidWithPaidTicket() {
+		long dateTime = new Date().getTime();
+		sut.enter(dateTime);
+		dateTime = new Date().getTime();
+		sut.pay(dateTime, charge);
+		boolean expected = true;
+		boolean result = sut.isPaid();
+		assertEquals(expected, result);
+	}
+	
+	@Test
+	public void testIsPaidWithExitedTicket() {
+		long dateTime = new Date().getTime();
+		sut.enter(dateTime);
+		dateTime = new Date().getTime();
+		sut.pay(dateTime, charge);
+		dateTime = new Date().getTime();
+		sut.exit(dateTime);
+		boolean expected = false;
+		boolean result = sut.isPaid();
+		assertEquals(expected, result);
+	}
+	@Test
 	public void testExit() {
-		fail("Not yet implemented");
-	}*/
+		long dateTime = new Date().getTime();
+		sut.exit(dateTime);
+		assertTrue(EXITED.equals(sut.getState()));
+	}
 
 	@Test
 	public void testGetExitDateTime() {
-		long dt = adhocTicket.getExitDateTime();
-		assertEquals(dt, exitDateTime);
+		long dateTime = new Date().getTime();
+		sut.exit(dateTime);
+		assertEquals(dateTime, sut.getExitDateTime());
 	}
 
-	/*@Test
-	public void testHasExited() {
-		fail("Not yet implemented");
-	}*/
+	@Test
+	public void testHasExitedtWithCurrentTicket() {
+		long dateTime = new Date().getTime();
+		sut.enter(dateTime);
+		boolean expected = false;
+		boolean result = sut.hasExited();
+		assertEquals(expected, result);
+	}
+	
+	@Test
+	public void testHasExitedWithExitedTicket() {
+		long dateTime = new Date().getTime();
+		sut.enter(dateTime);
+		dateTime = new Date().getTime();
+		sut.pay(dateTime, charge);
+		dateTime = new Date().getTime();
+		sut.exit(dateTime);
+		boolean expected = true;
+		boolean result = sut.hasExited();
+		assertEquals(expected, result);
+	}
+	
+
 
 
 }
