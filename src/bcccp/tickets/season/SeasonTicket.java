@@ -66,14 +66,9 @@ public class SeasonTicket implements ISeasonTicket {
 	public boolean inUse() {
 
 		Iterator<IUsageRecord> usageRec = usages.iterator();
-
 		boolean foundUsageRecord = false;
-
 		while (usageRec.hasNext()) {
-
-
       if (usageRec.next().getSeasonTicketId().equals(getId())) {
-
         foundUsageRecord = true;
         break;
       }
@@ -87,19 +82,14 @@ public class SeasonTicket implements ISeasonTicket {
 
 	@Override
 	public void recordUsage(IUsageRecord record) {
-
 		usages.add(record);
 	}
 
 	@Override
 	public IUsageRecord getCurrentUsageRecord() {
-
-
-    Iterator<IUsageRecord> usageRecs = usages.iterator();
-
-    while (usageRecs.hasNext()) {
-
-      if (usageRecs.next().getSeasonTicketId().equals(getId())) {
+		Iterator<IUsageRecord> usageRecs = usages.iterator();
+		while (usageRecs.hasNext()) {
+		if (usageRecs.next().getSeasonTicketId().equals(getId())) {
 
         currentUsage = usageRecs.next();
         break;
@@ -118,11 +108,8 @@ public class SeasonTicket implements ISeasonTicket {
 		// Will need to get the current usage record and write the dateTime to the usage record
 
 		Iterator<IUsageRecord> usageRecs = usages.iterator();
-
 		while (usageRecs.hasNext()) {
-
 			if (usageRecs.next().getSeasonTicketId().equals(getId())) {
-
 				usageRecs.next().finalise(dateTime);
 				break;
 			}
