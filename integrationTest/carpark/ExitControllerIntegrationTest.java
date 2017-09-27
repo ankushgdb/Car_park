@@ -1,6 +1,7 @@
 package integrationTest.carpark;
 
 import bcccp.carpark.*;
+import bcccp.carpark.exit.ExitController;
 import bcccp.tickets.adhoc.*;
 import bcccp.tickets.season.*;
 
@@ -14,7 +15,11 @@ import java.util.Calendar;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
+
+@RunWith(MockitoJUnitRunner.class)
 public class ExitControllerIntegrationTest {
   static Carpark carpark;
   static ExitController sut;
@@ -100,7 +105,7 @@ public class ExitControllerIntegrationTest {
 
     adhocTicket = adhocTicketFactory.make("Integral Carpark #12", 51);
 
-    barcodeForAdhocTicket = adhocTicketFactory.generateBarCode(51, "15052017111545");
+    
 
     idForSeasonTicket = seasonTicket.getId();
 

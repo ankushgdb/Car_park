@@ -1,4 +1,4 @@
-package bcccp.carpark.entry;
+package integrationTest.carpark.entry;
 
 import bcccp.carpark.CarSensor;
 import bcccp.carpark.Carpark;
