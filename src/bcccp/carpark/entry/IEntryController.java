@@ -5,7 +5,7 @@ public interface IEntryController {
 	public void buttonPushed();
 	public void ticketInserted(String barcode);
 	public void ticketTaken();
-	public String getStateAsString();
+	public String getState();
 	public void notifyCarparkEvent(); 
 
 }

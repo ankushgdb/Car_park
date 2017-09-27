@@ -100,7 +100,7 @@ public class EntryControllerTest {
 
 	@Test
 	public void entryControllerInitialisedToIdle() {
-		assertEquals(IDLE, entryController.getStateAsString());
+		assertEquals(IDLE, entryController.getState());
 
 	}
 
@@ -109,7 +109,7 @@ public class EntryControllerTest {
 		when(carpark.isFull()).thenReturn(false);
 		entryController.notifyCarparkEvent();
 		verify(ui).display("Push Button");
-		assertTrue(WAITING.equals(entryController.getStateAsString()));
+		assertTrue(WAITING.equals(entryController.getState()));
 
 	}
 
@@ -118,7 +118,7 @@ public class EntryControllerTest {
 		when(carpark.isFull()).thenReturn(true);
 		entryController.buttonPushed();
 		verify(ui).display("Carpark Full");
-		assertTrue(FULL.equals(entryController.getStateAsString()));
+		assertTrue(FULL.equals(entryController.getState()));
 
 	}
 
@@ -127,14 +127,14 @@ public class EntryControllerTest {
 		when(carpark.isFull()).thenReturn(false);
 		entryController.buttonPushed();
 		verify(ui).display("Take Ticket");
-		assertTrue(ISSUED.equals(entryController.getStateAsString()));
+		assertTrue(ISSUED.equals(entryController.getState()));
 
 	}
 
 	@Test
 	public void buttonPushedNotWaiting() {
 		entryController.buttonPushed();
-		assertNotEquals(WAITING, entryController.getStateAsString());
+		assertNotEquals(WAITING, entryController.getState());
 	}
 
 	@Test
@@ -144,7 +144,7 @@ public class EntryControllerTest {
 		when(carpark.isSeasonTicketInUse(barcode)).thenReturn(false);
 		entryController.ticketInserted(barcode);
 		verify(ui).display("Take Ticket");
-		assertTrue(VALIDATED.equals(entryController.getStateAsString()));
+		assertTrue(VALIDATED.equals(entryController.getState()));
 
 	}
 

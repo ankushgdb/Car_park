@@ -2,6 +2,7 @@ package bcccp.carpark;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -107,12 +108,12 @@ public class Carpark implements ICarpark {
 
     seasonTicketDAO.registerTicket(seasonTicket);
 
-    if (seasonTicket.getCarparkId() != this.carparkId) {
+   /* if (seasonTicket.getCarparkId() != this.carparkId) {
 
       throw new RuntimeException("SeasonTicket in registerSeasonTicket has invalid CarparkId: " +
               seasonTicket.getCarparkId() + ", should be CarparkId: " + this.carparkId);
 
-    }
+    }*/
   }
 
   @Override
@@ -128,11 +129,15 @@ public class Carpark implements ICarpark {
     // the season ticket is valid
 
     Date dateTime = new Date();
+    long currentTime = dateTime.getTime();
 
     ISeasonTicket sTicket = seasonTicketDAO.findTicketById(ticketId);
 
-    return (dateTime.getTime() >= sTicket.getStartValidPeriod())
-            && (dateTime.getTime() <= sTicket.getEndValidPeriod());
+    if ((currentTime >= sTicket.getStartValidPeriod())
+    		&& (currentTime <= sTicket.getEndValidPeriod())) {	
+            return true;
+            }
+          return false;  
   }
 
   @Override
@@ -159,4 +164,25 @@ public class Carpark implements ICarpark {
   public int getNumberOfCarsParked() {
     return numberOfCarsParked;
   }
+  
+  public float calculateAddHocTicketCharge(long entryDateTime) {
+	  
+	  float WEEKDAY_RATE = (float) 3.0; //3.00 per hour
+	  float WEEKEND_RATE = (float) 2.0; // 2.00 per hour
+	  
+	  Calendar calendar = Calendar.getInstance();
+	  calendar.setTimeInMillis(entryDateTime);
+	  int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+	  
+	  float hourlyCharge;
+	  
+	  if (dayOfWeek == 1 || dayOfWeek == 2 || dayOfWeek == 3 || dayOfWeek == 4 || dayOfWeek == 5) {
+		  hourlyCharge = WEEKDAY_RATE;  
+	  } 
+	  else {
+		  hourlyCharge = WEEKEND_RATE;
+	  }
+
+	 return hourlyCharge;
+	}
 }
