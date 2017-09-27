@@ -31,7 +31,7 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
     BLOCKED
   }
 
-  private String seasonTicketId;
+  private String seasonTicketId = ""; // new fix
   private STATE state;
   private STATE prevState;
   private String message;
@@ -116,8 +116,19 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
 
   @Override
   public void ticketInserted(String barcode) {
+	  if (carpark.isSeasonTicketValid(barcode)) {
+          if (!carpark.isSeasonTicketInUse(barcode)) {
+              seasonTicketId = barcode;
+              ui.display("Take Ticket");
+              setState(STATE.VALIDATED);
+              return;
+          }
+      }
 
-    if (state == STATE.WAITING) {
+     ui.display("Ticket Rejected");
+  }
+	  
+   /* if (state == STATE.WAITING) {
       try {
         if (carpark.isSeasonTicketValid(barcode) && !carpark.isSeasonTicketInUse(barcode)) {
           seasonTicketId = barcode;
@@ -135,8 +146,8 @@ public class EntryController implements ICarSensorResponder, ICarparkObserver, I
     } else {
       ui.beep();
       log("ticketInserted: called while in incorrect state");
-    }
-  }
+    }*/
+  
 
   @Override
   public void ticketTaken() {

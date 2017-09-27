@@ -24,5 +24,4 @@ public interface ICarpark {
 	public void recordSeasonTicketEntry(String ticketId);
 	public void recordSeasonTicketExit(String ticketId);
 
-
 }
