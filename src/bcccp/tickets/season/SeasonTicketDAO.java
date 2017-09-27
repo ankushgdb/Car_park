@@ -46,16 +46,13 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 	@Override
 	public ISeasonTicket findTicketById(String ticketId) {
 		Iterator<ISeasonTicket> sTicketRecs = seasonTickets.iterator();
-		ISeasonTicket sTicket = null;
 		while (sTicketRecs.hasNext()) {
-			sTicket = sTicketRecs.next();
-			if (sTicket.getId().contentEquals(ticketId)) {
-				break;
-			} else {
-				sTicket = null;
+			ISeasonTicket sTicket = sTicketRecs.next();
+			if (ticketId.contentEquals(sTicket.getId())) { // fix line
+				return sTicket;
 			}
 		}
-		return sTicket;
+		return null;
 	}
 
 

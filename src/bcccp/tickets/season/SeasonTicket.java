@@ -64,8 +64,12 @@ public class SeasonTicket implements ISeasonTicket {
 
 	@Override
 	public boolean inUse() {
-
-		Iterator<IUsageRecord> usageRec = usages.iterator();
+		if(currentUsage != null){
+            return true;
+        }
+        return false;
+	}
+	/*	Iterator<IUsageRecord> usageRec = usages.iterator();
 		boolean foundUsageRecord = false;
 		while (usageRec.hasNext()) {
       if (usageRec.next().getSeasonTicketId().equals(getId())) {
@@ -77,8 +81,8 @@ public class SeasonTicket implements ISeasonTicket {
     }
 
     return foundUsageRecord;
-
-	}
+*/
+	
 
 	@Override
 	public void recordUsage(IUsageRecord record) {
