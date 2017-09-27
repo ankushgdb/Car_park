@@ -19,6 +19,6 @@ public interface IAdhocTicket {
 	public long getExitDateTime();
 	public boolean hasExited();
 	
-	
+	public String getState();
 	
 }

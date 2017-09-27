@@ -26,19 +26,16 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 
 	@Override
 	public void registerTicket(ISeasonTicket ticket) {
-		seasonTickets.add(ticket);
+		if(!seasonTickets.contains(ticket)){
+            seasonTickets.add(ticket);
+        }
 	}
 
 	@Override
 	public void deregisterTicket(ISeasonTicket ticket) {
-		Iterator<ISeasonTicket> sTicketRecs = seasonTickets.iterator();
-		while (sTicketRecs.hasNext()) {
-			if (sTicketRecs.next().getId().equals(ticket.getId())) {
-				sTicketRecs.remove();
-				break;
-
-			}
-		}
+		if(seasonTickets.contains(ticket)){
+            seasonTickets.remove(ticket);
+        }
 	}
 
 	@Override
@@ -52,7 +49,7 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 		ISeasonTicket sTicket = null;
 		while (sTicketRecs.hasNext()) {
 			sTicket = sTicketRecs.next();
-			if (sTicket.getId().equals(ticketId)) {
+			if (sTicket.getId().contentEquals(ticketId)) {
 				break;
 			} else {
 				sTicket = null;
@@ -67,11 +64,11 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 
 		// This method creates a new usage record with current day and time as the startTime
 		// and uses recordUsage method from SeasonTicket class to record it to the ArrayList
-
-		Date dateTime = new Date();
-		IUsageRecord usageRecord = factory.make(ticketId, dateTime.getTime());
-		if (findTicketById(ticketId) != null) {
-			findTicketById(ticketId).recordUsage(usageRecord);
+		ISeasonTicket ticket = findTicketById(ticketId);
+		if ( ticket != null) {
+			Date entryDateTime = new Date();
+			IUsageRecord usage = factory.make(ticketId, entryDateTime.getTime());
+            ticket.recordUsage(usage);
 		} else {
 			throw new RuntimeException("Runtime Exception: No corresponding ticket.");
 		}
@@ -80,12 +77,15 @@ public class SeasonTicketDAO implements ISeasonTicketDAO {
 
 	@Override
 	public void recordTicketExit(String ticketId) {
-
 		// Finds an existing usage record and records the current day and time (on exiting of vehicle)
 		// on the record
-		Date dateTime = new Date();
-		findTicketById(ticketId).endUsage(dateTime.getTime());
-
+		ISeasonTicket ticket = findTicketById(ticketId);
+		if ( ticket != null) {
+			Date exitDateTime = new Date();
+            ticket.endUsage(exitDateTime.getTime());
+		} else {
+			throw new RuntimeException("Runtime Exception: No corresponding ticket.");
+		}
 	}
 
 }
