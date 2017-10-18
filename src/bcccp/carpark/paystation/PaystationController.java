@@ -33,7 +33,10 @@ public class PaystationController implements IPaystationController {
 		if (state_ == STATE.IDLE) {
 			adhocTicket_ = carpark_.getAdhocTicket(barcode);
 			if (adhocTicket_ != null) {
-				charge_ = carpark_.calculateAddHocTicketCharge(adhocTicket_.getEntryDateTime());
+				float hourlyRate = carpark_.calculateAddHocTicketCharge(adhocTicket_.getEntryDateTime());
+				long diffHours = (System.currentTimeMillis() - adhocTicket_.getEntryDateTime()) / (60 * 60 * 1000) % 24;
+				charge_ = hourlyRate * diffHours;
+				// charge_ = carpark_.calculateAddHocTicketCharge(adhocTicket_.getEntryDateTime());
 				ui_.display("Pay " + String.format("%.2f", charge_));
 				setState(STATE.WAITING);
 			}

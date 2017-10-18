@@ -29,6 +29,9 @@ public class IntegrationCarparkTest {
 	static int DEFAULT_CAPACITY = 3;
 	private Logger logger = Logger.getLogger("Unit testing for Carpark class.");
 
+	public IntegrationCarparkTest( ) {
+		
+	}
 
 	@BeforeAll
 	static void before() {
